@@ -1,0 +1,63 @@
+package com.bearmq.client.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import static com.bearmq.client.Names.CONFIG_BASE;
+
+@ConfigurationProperties(CONFIG_BASE)
+public class BearConfig {
+  private String username;
+  private String password;
+  private String host;
+  private int port;
+  private String virtualHost;
+  private BearRetryConfig retry;
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getHost() {
+    return host;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  public String getVirtualHost() {
+    return virtualHost;
+  }
+
+  public void setVirtualHost(String virtualHost) {
+    this.virtualHost = virtualHost;
+  }
+
+  public BearRetryConfig getRetry() {
+    return retry;
+  }
+
+  public void setRetry(BearRetryConfig retry) {
+    this.retry = retry;
+  }
+}

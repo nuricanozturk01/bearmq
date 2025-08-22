@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bearmq
+    username: bearmq
+    password: bearmq123
+
+  jpa:
+    show-sql: false
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        default_schema: public
+
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    root: warn
+
+bearmq:
+  server:
+    broker:
+      port: 6667
+      backlog: 1024
+    metrics:
+      enabled: true
+      port: 3334

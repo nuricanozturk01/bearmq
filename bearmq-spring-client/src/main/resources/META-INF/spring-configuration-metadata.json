@@ -1,0 +1,72 @@
+{
+  "groups": [
+    {
+      "name": "bearmq",
+      "type": "com.bearmq.client.config.BearConfig",
+      "description": "BearMQ configuration properties"
+    },
+    {
+      "name": "bearmq.listener",
+      "type": "com.bearmq.client.config.BearRetryConfig",
+      "description": "BearMQ Retry Configuration"
+    }
+  ],
+  "properties": [
+    {
+      "name": "bearmq.username",
+      "type": "java.lang.String",
+      "description": "bearmq username"
+    },
+    {
+      "name": "bearmq.password",
+      "type": "java.lang.String",
+      "description": "bearmq password"
+    },
+    {
+      "name": "bearmq.host",
+      "type": "java.lang.String",
+      "description": "Host address"
+    },
+    {
+      "name": "bearmq.port",
+      "type": "java.lang.Integer",
+      "description": "Port",
+      "defaultValue": 6667
+    },
+    {
+      "name": "bearmq.virtual-host",
+      "type": "java.lang.String",
+      "description": "Virtual Host address"
+    },
+    {
+      "name": "bearmq.listener.simple.retry.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enabled",
+      "defaultValue": true
+    },
+    {
+      "name": "bearmq.listener.simple.retry.initial-interval",
+      "type": "java.lang.String",
+      "description": "Initial Interval",
+      "defaultValue": "3sn"
+    },
+    {
+      "name": "bearmq.listener.simple.retry.max-attempts",
+      "type": "java.lang.Integer",
+      "description": "Max Attempts",
+      "defaultValue": 6
+    },
+    {
+      "name": "bearmq.listener.simple.retry.max-interval",
+      "type": "java.lang.String",
+      "description": "Max Interval",
+      "defaultValue": "10sn"
+    },
+    {
+      "name": "bearmq.listener.simple.retry.multiplier",
+      "type": "java.lang.Integer",
+      "description": "Multiplier",
+      "defaultValue": 2
+    }
+  ]
+}

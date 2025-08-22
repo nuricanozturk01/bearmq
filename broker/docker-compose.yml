@@ -1,0 +1,21 @@
+services:
+  postgres:
+    container_name: bearmq-postgres
+    hostname: bearmq-postgres
+    image: postgres:16.3-alpine
+    environment:
+      - POSTGRES_DB=bearmq
+      - POSTGRES_USER=bearmq
+      - POSTGRES_PASSWORD=bearmq123
+    ports:
+      - "5432:5432"
+    networks:
+      - bearmq
+
+networks:
+  bearmq:
+    name: bearmq
+    driver: bridge
+
+volumes:
+  minio_data:

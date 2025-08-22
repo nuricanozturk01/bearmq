@@ -1,1 +1,1 @@
-# bearmq
+# Simple Distributed Message Queue (Lightweight RabbitMQ)

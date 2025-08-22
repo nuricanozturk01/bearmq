@@ -1,0 +1,14 @@
+bearmq:
+  username: audittracer
+  password: audittracer123
+  host: localhost
+  port: 6667
+  virtual-host: audittracer
+  listener:
+    simple:
+      retry:
+        enabled: true
+        initial-interval: 3s
+        max-attempts: 6
+        max-interval: 10s
+        multiplier: 2
