@@ -62,7 +62,7 @@ public class BrokerApplication implements ApplicationRunner {
             .build();
 
     final SubscriptionPlan pro = SubscriptionPlan.builder()
-            .name(SubscriptionPlans.FREE)
+            .name(SubscriptionPlans.PRO)
             .maxExchange(5)
             .maxQueues(20)
             .maxVhosts(5)
@@ -75,6 +75,6 @@ public class BrokerApplication implements ApplicationRunner {
             .maxVhosts(10)
             .build();
 
-    subscriptionPlanRepository.saveAll(List.of(free, pro, enterprise, enterprise));
+    subscriptionPlanRepository.saveAll(List.of(free, pro, enterprise));
   }
 }
