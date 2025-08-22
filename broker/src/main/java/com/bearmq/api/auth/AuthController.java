@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-  private final AuthService authService;
+  private final AuthComponent authComponent;
   private final TenantService tenantService;
 
 
@@ -24,11 +24,11 @@ public class AuthController {
   public ResponseEntity<AuthResponse> register(@RequestBody final RegisterRequest registerRequest) {
     final TenantInfo tenantInfo = tenantService.create(registerRequest);
 
-    return ResponseEntity.ok(authService.authenticate(tenantInfo));
+    return ResponseEntity.ok(authComponent.authenticate(tenantInfo));
   }
 
   @PostMapping("/login")
   public ResponseEntity<AuthResponse> login(final @RequestBody AuthRequest authRequest)  {
-    return ResponseEntity.ok(authService.authenticate(authRequest));
+    return ResponseEntity.ok(authComponent.authenticate(authRequest));
   }
 }

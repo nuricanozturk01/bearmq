@@ -8,10 +8,8 @@ public record QueueRequest(
         String name,
         boolean durable,
         boolean exclusive,
-
         @JsonProperty("auto_delete")
         boolean autoDelete,
-
-        Map<String, Object> args
+        Map<String, Object> arguments
 ) {
 }

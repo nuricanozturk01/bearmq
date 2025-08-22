@@ -7,6 +7,7 @@ import com.bearmq.api.tenant.converter.TenantConverter;
 import com.bearmq.api.tenant.dto.TenantInfo;
 import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,6 +32,7 @@ public class TenantService {
             .username(request.username())
             .plan(plan)
             .status(TenantStatus.ACTIVE)
+            .apiKey(RandomStringUtils.secure().next(32, true, false))
             // password is not contains for easy dev process
             .build();
 
@@ -40,9 +42,15 @@ public class TenantService {
   }
 
   public TenantInfo findByUsername(final String username) {
-    final Tenant tenant =  tenantRepository.findByUsername(username)
+    final Tenant tenant = tenantRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
 
     return tenantConverter.toTenantInfo(tenant);
+  }
+
+  public TenantInfo findByApiKey(String apiKey) {
+    return tenantRepository.findByApiKey(apiKey)
+            .map(tenantConverter::toTenantInfo)
+            .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
   }
 }

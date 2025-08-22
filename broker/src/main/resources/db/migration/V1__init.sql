@@ -76,6 +76,7 @@ CREATE TABLE tenant
     created_at           TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
     subscription_plan_id VARCHAR(255)                  NOT NULL,
     status               VARCHAR(255) DEFAULT 'ACTIVE' NOT NULL,
+    api_key              VARCHAR(52)  DEFAULT ''       NOT NULL,
     deleted              BOOLEAN                       NOT NULL,
     CONSTRAINT pk_tenant PRIMARY KEY (id)
 );
@@ -85,6 +86,10 @@ CREATE TABLE virtual_host
     id          VARCHAR(26)                   NOT NULL,
     name        VARCHAR(255),
     description VARCHAR(255),
+    username    VARCHAR(150)                  NOT NULL,
+    password    VARCHAR(150)                  NOT NULL,
+    url         VARCHAR(255)                  NOT NULL,
+    domain      VARCHAR(255)                  NOT NULL,
     created_at  TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
     tenant_id   VARCHAR(26)                   NOT NULL,
     status      VARCHAR(255) DEFAULT 'ACTIVE' NOT NULL,

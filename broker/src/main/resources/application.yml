@@ -25,6 +25,7 @@ logging:
     root: warn
 
 bearmq:
+  domain: localhost:6667
   server:
     broker:
       port: 6667

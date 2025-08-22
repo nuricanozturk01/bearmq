@@ -42,6 +42,18 @@ public class VirtualHost {
   @Column
   private String description;
 
+  @Column(nullable = false, length = 150, unique = true)
+  private String username;
+
+  @Column(nullable = false, length = 150)
+  private String password;
+
+  @Column(nullable = false)
+  private String domain;
+
+  @Column(nullable = false, length = 150, unique = true)
+  private String url;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;

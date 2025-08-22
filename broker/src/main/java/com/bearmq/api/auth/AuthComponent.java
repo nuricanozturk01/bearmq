@@ -2,18 +2,17 @@ package com.bearmq.api.auth;
 
 import com.bearmq.api.auth.dto.AuthRequest;
 import com.bearmq.api.auth.dto.AuthResponse;
-import com.bearmq.api.tenant.TenantRepository;
-import com.bearmq.api.tenant.converter.TenantConverter;
+import com.bearmq.api.tenant.TenantService;
 import com.bearmq.api.tenant.dto.TenantInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.util.Pair;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.util.Base64;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthComponent {
+  private final TenantService tenantService;
+
   public AuthResponse authenticate(final TenantInfo tenantInfo) {
     return AuthResponse.builder()
             .token("token123")
@@ -31,13 +30,7 @@ public class AuthService {
   }
 
   // Sample code. We need skip auth parts for accelerate development
-  public Pair<String, String> authorize(final String basicAuth) {
-    final String basic = basicAuth.substring("Basic ".length());
-    final var credentials = new String(Base64.getDecoder().decode(basic));
-    final var values = credentials.split(":");
-    final var username = values[0];
-    final var password = values[1];
-
-    return Pair.of(username, password);
+  public TenantInfo authorize(final String apiKey, String token) {
+    return tenantService.findByApiKey(apiKey);
   }
 }
