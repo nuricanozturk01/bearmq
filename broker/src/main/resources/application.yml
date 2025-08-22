@@ -1,3 +1,5 @@
+server:
+  port: 3333
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/bearmq
@@ -28,5 +30,5 @@ bearmq:
       port: 6667
       backlog: 1024
     metrics:
-      enabled: true
-      port: 3334
+      enabled: false
+      port: 6668

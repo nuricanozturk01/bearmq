@@ -1,16 +1,15 @@
-package com.bearmq.broker.queue;
+package com.bearmq.api.tenant;
 
-import com.bearmq.broker.tenant.Tenant;
-import jakarta.persistence.CascadeType;
+import com.bearmq.api.subscriptionplan.SubscriptionPlan;
+import com.bearmq.model.VirtualHost;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,53 +24,59 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "virtual_host")
+@Table(name = "tenant")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
-public class VirtualHost {
+public class Tenant {
   @Id
-  @Column(nullable = false, unique = true, length = 26)
+  @Column(nullable = false, length = 26, unique = true)
   private String id;
 
-  @Column
-  private String name;
+  @Column(name = "full_name")
+  private String fullName;
 
-  @Column
-  private String description;
+  @Column(nullable = false, length = 150, unique = true)
+  private String username;
+
+  @Column(nullable = false, length = 150, unique = true)
+  private String email;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "tenant_id", nullable = false)
-  private Tenant tenant;
+  @OneToOne
+  @JoinColumn(name = "subscription_plan_id", nullable = false, referencedColumnName = "name")
+  private SubscriptionPlan plan;
+
+  @OneToMany(mappedBy = "tenant")
+  private Set<VirtualHost> vhosts;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   @ColumnDefault("ACTIVE")
-  private Status status;
-
-  @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<Queue> queues;
-
-  @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<Exchange> exchanges;
+  private TenantStatus status;
 
   @Column(nullable = false)
   private boolean deleted;
 
+  @Column(name = "api_key", nullable = false, length = 52)
+  private String apiKey;
+
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof VirtualHost that)) return false;
-    return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+    if (!(o instanceof Tenant tenant)) {
+      return false;
+    }
+
+    return Objects.equals(id, tenant.id) && Objects.equals(username, tenant.username) && Objects.equals(email, tenant.email);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name);
+    return Objects.hash(id, username, email);
   }
 }

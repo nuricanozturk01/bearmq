@@ -1,4 +1,4 @@
-package com.bearmq.broker.queue;
+package com.bearmq.model;
 
 public enum OverflowPolicy {
   DEAD_LETTER_QUEUE,

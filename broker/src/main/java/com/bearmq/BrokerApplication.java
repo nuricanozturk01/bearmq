@@ -1,5 +1,8 @@
 package com.bearmq;
 
+import com.bearmq.api.subscriptionplan.SubscriptionPlan;
+import com.bearmq.api.subscriptionplan.SubscriptionPlanRepository;
+import com.bearmq.api.subscriptionplan.SubscriptionPlans;
 import com.bearmq.broker.BrokerServer;
 import com.bearmq.broker.Constant;
 import com.bearmq.metrics.MetricServer;
@@ -11,12 +14,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.util.List;
+
 @SpringBootApplication
 @EnableAsync
 @RequiredArgsConstructor
 public class BrokerApplication implements ApplicationRunner {
   private final BrokerServer brokerServer;
   private final MetricServer metricServer;
+  private final SubscriptionPlanRepository subscriptionPlanRepository;
 
   @Value("${bearmq.server.metrics.enabled}")
   private boolean isMetricEnabled;
@@ -37,5 +43,38 @@ public class BrokerApplication implements ApplicationRunner {
       metricsThread.setDaemon(false);
       metricsThread.start();
     }
+
+    persistSubscriptionPlans();
+  }
+
+  private void persistSubscriptionPlans() {
+    final var plan = subscriptionPlanRepository.findByName((SubscriptionPlans.FREE));
+
+    if (plan.isPresent()) {
+      return;
+    }
+
+    final SubscriptionPlan free = SubscriptionPlan.builder()
+            .name(SubscriptionPlans.FREE)
+            .maxExchange(3)
+            .maxQueues(10)
+            .maxVhosts(3)
+            .build();
+
+    final SubscriptionPlan pro = SubscriptionPlan.builder()
+            .name(SubscriptionPlans.FREE)
+            .maxExchange(5)
+            .maxQueues(20)
+            .maxVhosts(5)
+            .build();
+
+    final SubscriptionPlan enterprise = SubscriptionPlan.builder()
+            .name(SubscriptionPlans.ENTERPRISE)
+            .maxExchange(10)
+            .maxQueues(30)
+            .maxVhosts(10)
+            .build();
+
+    subscriptionPlanRepository.saveAll(List.of(free, pro, enterprise, enterprise));
   }
 }

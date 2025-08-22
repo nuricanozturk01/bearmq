@@ -23,6 +23,11 @@
       "description": "bearmq password"
     },
     {
+      "name": "bearmq.api-key",
+      "type": "java.lang.String",
+      "description": "bearmq api key"
+    },
+    {
       "name": "bearmq.host",
       "type": "java.lang.String",
       "description": "Host address"

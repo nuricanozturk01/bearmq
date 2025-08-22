@@ -1,0 +1,5 @@
+ALTER TABLE tenant
+    ADD api_key VARCHAR(52) DEFAULT '';
+
+ALTER TABLE tenant
+    ALTER COLUMN api_key SET NOT NULL;

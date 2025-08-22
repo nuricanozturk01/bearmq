@@ -1,6 +1,7 @@
 package com.bearmq.broker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
@@ -26,6 +27,12 @@ public class BrokerServer implements Closeable {
   private final ExecutorService executorService;
   private final ObjectMapper objectMapper;
 
+  @PreDestroy
+  public void destroy() throws IOException {
+    serverSocket.close();
+    executorService.shutdown();
+  }
+
   @Override
   public void close() throws IOException {
     serverSocket.close();
@@ -39,6 +46,7 @@ public class BrokerServer implements Closeable {
         executorService.execute(() -> handleClient(socket));
       }
     } catch (final IOException e) {
+      Thread.currentThread().interrupt();
       log.error("Error accepting connection", e);
     }
   }
@@ -78,6 +86,7 @@ public class BrokerServer implements Closeable {
       String json = new String(decodedBody, java.nio.charset.StandardCharsets.UTF_8);
       System.out.println(json);
     } catch (final Exception e) {
+      Thread.currentThread().interrupt();
       log.error("Error accepting connection", e);
     }
   }

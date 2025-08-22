@@ -1,5 +1,6 @@
-package com.bearmq.broker.tenant;
+package com.bearmq.api.subscriptionplan;
 
+import com.bearmq.api.tenant.Tenant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

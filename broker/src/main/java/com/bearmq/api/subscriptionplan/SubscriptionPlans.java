@@ -1,4 +1,4 @@
-package com.bearmq.broker.tenant;
+package com.bearmq.api.subscriptionplan;
 
 public enum SubscriptionPlans {
   FREE,

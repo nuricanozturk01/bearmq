@@ -4,6 +4,7 @@ bearmq:
   host: localhost
   port: 6667
   virtual-host: audittracer
+  api-key: TESTTESTTESTTESTTESTTEST
   listener:
     simple:
       retry:

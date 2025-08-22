@@ -11,7 +11,16 @@ public class BearConfig {
   private String host;
   private int port;
   private String virtualHost;
+  private String apiKey;
   private BearRetryConfig retry;
+
+  public String getApiKey() {
+    return apiKey;
+  }
+
+  public void setApiKey(String apiKey) {
+    this.apiKey = apiKey;
+  }
 
   public String getUsername() {
     return username;
