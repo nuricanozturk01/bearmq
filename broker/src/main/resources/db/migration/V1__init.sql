@@ -76,8 +76,8 @@ CREATE TABLE tenant
     created_at           TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
     subscription_plan_id VARCHAR(255)                  NOT NULL,
     status               VARCHAR(255) DEFAULT 'ACTIVE' NOT NULL,
-    api_key              VARCHAR(52)  DEFAULT ''       NOT NULL,
     deleted              BOOLEAN                       NOT NULL,
+    api_key              VARCHAR(52)                   NOT NULL,
     CONSTRAINT pk_tenant PRIMARY KEY (id)
 );
 
@@ -88,8 +88,8 @@ CREATE TABLE virtual_host
     description VARCHAR(255),
     username    VARCHAR(150)                  NOT NULL,
     password    VARCHAR(150)                  NOT NULL,
-    url         VARCHAR(255)                  NOT NULL,
     domain      VARCHAR(255)                  NOT NULL,
+    url         VARCHAR(150)                  NOT NULL,
     created_at  TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
     tenant_id   VARCHAR(26)                   NOT NULL,
     status      VARCHAR(255) DEFAULT 'ACTIVE' NOT NULL,
@@ -108,6 +108,12 @@ ALTER TABLE tenant
 
 ALTER TABLE tenant
     ADD CONSTRAINT uc_tenant_username UNIQUE (username);
+
+ALTER TABLE virtual_host
+    ADD CONSTRAINT "uc_vırtual_host_url" UNIQUE (url);
+
+ALTER TABLE virtual_host
+    ADD CONSTRAINT "uc_vırtual_host_username" UNIQUE (username);
 
 ALTER TABLE binding
     ADD CONSTRAINT FK_BINDING_ON_DESTINATION_EXCHANGE FOREIGN KEY (destination_exchange_id) REFERENCES exchange (id);

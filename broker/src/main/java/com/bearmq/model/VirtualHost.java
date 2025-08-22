@@ -73,6 +73,9 @@ public class VirtualHost {
   @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<Exchange> exchanges;
 
+  @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<Binding> bindings;
+
   @Column(nullable = false)
   private boolean deleted;
 
