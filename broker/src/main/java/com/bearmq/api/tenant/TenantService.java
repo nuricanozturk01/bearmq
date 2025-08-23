@@ -33,6 +33,9 @@ public class TenantService {
     final var salt = RandomStringUtils.secure().nextAlphanumeric(SALT_LENGTH);
     final var password = DigestUtils.sha256Hex(salt + request.password());
 
+    final var apiKey = String.format("bearmqt-%s",
+            RandomStringUtils.secure().next(API_KEY_LENGTH, true, false));
+
     final Tenant tenantObj = Tenant.builder()
             .id(UlidCreator.getUlid().toString())
             .fullName(request.fullName())
@@ -40,7 +43,7 @@ public class TenantService {
             .username(request.username())
             .plan(plan)
             .status(TenantStatus.ACTIVE)
-            .apiKey(RandomStringUtils.secure().next(API_KEY_LENGTH, true, false))
+            .apiKey(apiKey)
             .salt(salt)
             .password(password)
             .build();

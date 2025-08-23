@@ -8,10 +8,14 @@ import com.bearmq.shared.queue.Queue;
 import com.bearmq.shared.vhost.VirtualHost;
 import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,42 +23,59 @@ public class BindingService {
   private final BindingRepository bindingRepository;
   private final BrokerConverter brokerConverter;
 
-  public void createAll(VirtualHost vhost, List<Exchange> exchanges, List<Queue> queues, List<BindRequest> bindings) {
-    final List<Pair<BindRequest, Binding>> bindingPairs = bindings.stream()
-            .map(req -> Pair.of(req, brokerConverter.toBinding(req)))
-            .toList();
+  public void createAll(
+          final VirtualHost vhost,
+          final List<Exchange> exchanges,
+          final List<Queue> queues,
+          final List<BindRequest> bindings) {
+    final Map<String, Exchange> exchangeByName = exchanges.stream()
+            .collect(Collectors.toMap(Exchange::getName, Function.identity()));
 
-    for (final var binding : bindingPairs) {
-      binding.getSecond().setId(UlidCreator.getUlid().toString());
-      binding.getSecond().setVhost(vhost);
-      binding.getSecond().setStatus(Status.ACTIVE);
-      binding.getSecond().setDestinationType(DestinationType.valueOf(binding.getFirst().destinationType()));
-      binding.getSecond().setRoutingKey(binding.getFirst().routingKey());
-      if (binding.getSecond().getDestinationType() == DestinationType.QUEUE && !queues.isEmpty()) {
-        final var queue = queues.stream()
-                .filter(q -> q.getName().equals(binding.getFirst().destination()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("queue is not found!"));
+    final Map<String, Queue> queueByName = queues.stream()
+            .collect(Collectors.toMap(Queue::getName, Function.identity()));
 
-        binding.getSecond().setDestinationQueueRef(queue);
-        binding.getSecond().setDestinationQueueId(queue.getId());
-      } else {
-        final var exchange = exchanges.stream()
-                .filter(e -> e.getName().equals(binding.getFirst().destination()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("exchange is not found!"));
-        binding.getSecond().setDestinationExchangeRef(exchange);
-        binding.getSecond().setDestinationExchangeId(exchange.getId());
-      }
+    final List<Binding> toPersist = new ArrayList<>(bindings.size());
 
-      final Exchange sourceExchange = exchanges.stream()
-              .filter(e -> e.getName().equals(binding.getFirst().source()))
-              .findFirst()
+    for (final BindRequest req : bindings) {
+      final DestinationType destType = DestinationType.valueOf(req.destinationType());
+      final Binding b = brokerConverter.toBinding(req);
+
+      b.setId(UlidCreator.getUlid().toString());
+      b.setVhost(vhost);
+      b.setStatus(Status.ACTIVE);
+      b.setDestinationType(destType);
+      b.setRoutingKey(req.routingKey());
+
+      setDestinations(destType, queueByName, req, exchangeByName, b);
+
+      // source
+      final Exchange srcEx = Optional.ofNullable(exchangeByName.get(req.source()))
               .orElseThrow(() -> new RuntimeException("source is not found!"));
-      binding.getSecond().setSourceExchangeId(sourceExchange.getId());
-      binding.getSecond().setSourceExchangeRef(sourceExchange);
+      b.setSourceExchangeRef(srcEx);
+      b.setSourceExchangeId(srcEx.getId());
+
+      toPersist.add(b);
     }
 
-    bindingRepository.saveAll(bindingPairs.stream().map(Pair::getSecond).toList());
+    bindingRepository.saveAll(toPersist);
+  }
+
+  private void setDestinations(
+          final DestinationType destType,
+          final Map<String, Queue> queueByName,
+          final BindRequest req,
+          final Map<String, Exchange> exchangeByName,
+          final Binding b) {
+    if (destType == DestinationType.QUEUE) {
+      final Queue q = Optional.ofNullable(queueByName.get(req.destination()))
+              .orElseThrow(() -> new RuntimeException("queue is not found!"));
+      b.setDestinationQueueRef(q);
+      b.setDestinationQueueId(q.getId());
+    } else {
+      final Exchange destEx = Optional.ofNullable(exchangeByName.get(req.destination()))
+              .orElseThrow(() -> new RuntimeException("exchange is not found!"));
+      b.setDestinationExchangeRef(destEx);
+      b.setDestinationExchangeId(destEx.getId());
+    }
   }
 }

@@ -9,7 +9,6 @@ import com.bearmq.shared.exchange.ExchangeService;
 import com.bearmq.shared.queue.Queue;
 import com.bearmq.shared.queue.QueueService;
 import com.bearmq.shared.vhost.VirtualHostService;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +52,7 @@ public class BrokerApiFacade {
     virtualHostService.delete(tenantInfo, vhostId);
   }
 
-  public Page<VirtualHostInfo> findAllByUserId(final TenantInfo tenantInfo, final @NotNull Pageable pageable) {
+  public Page<VirtualHostInfo> findAllByUserId(final TenantInfo tenantInfo, final Pageable pageable) {
     return virtualHostService.findAllByTenantId(tenantInfo.id(), pageable);
   }
 }
