@@ -16,6 +16,3 @@ networks:
   bearmq:
     name: bearmq
     driver: bridge
-
-volumes:
-  minio_data:
