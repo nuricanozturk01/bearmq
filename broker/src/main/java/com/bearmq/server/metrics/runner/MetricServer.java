@@ -1,6 +1,6 @@
 package com.bearmq.server.metrics.runner;
 
-import com.bearmq.server.broker.config.ThreadMetrics;
+import com.bearmq.server.config.ThreadMetrics;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

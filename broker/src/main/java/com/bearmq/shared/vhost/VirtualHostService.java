@@ -3,7 +3,7 @@ package com.bearmq.shared.vhost;
 import com.bearmq.api.tenant.Tenant;
 import com.bearmq.api.tenant.TenantRepository;
 import com.bearmq.api.tenant.dto.TenantInfo;
-import com.bearmq.server.broker.dto.VirtualHostInfo;
+import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import com.bearmq.shared.broker.Status;
 import com.github.f4b6a3.ulid.UlidCreator;
 import org.springframework.transaction.annotation.Transactional;

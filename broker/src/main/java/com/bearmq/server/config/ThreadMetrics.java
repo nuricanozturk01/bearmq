@@ -1,4 +1,4 @@
-package com.bearmq.server.broker.config;
+package com.bearmq.server.config;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;

@@ -2,7 +2,7 @@ package com.bearmq.api.facade;
 
 import com.bearmq.api.tenant.dto.TenantInfo;
 import com.bearmq.api.broker.dto.BrokerRequest;
-import com.bearmq.server.broker.dto.VirtualHostInfo;
+import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import com.bearmq.shared.binding.BindingService;
 import com.bearmq.shared.exchange.Exchange;
 import com.bearmq.shared.exchange.ExchangeService;
@@ -55,4 +55,6 @@ public class BrokerApiFacade {
   public Page<VirtualHostInfo> findAllByUserId(final TenantInfo tenantInfo, final Pageable pageable) {
     return virtualHostService.findAllByTenantId(tenantInfo.id(), pageable);
   }
+
+  //...
 }

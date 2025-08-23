@@ -1,4 +1,4 @@
-package com.bearmq.server.broker.config;
+package com.bearmq.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
