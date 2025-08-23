@@ -4,7 +4,6 @@ import com.bearmq.api.auth.dto.AuthRequest;
 import com.bearmq.api.auth.dto.AuthResponse;
 import com.bearmq.api.auth.dto.RegisterRequest;
 import com.bearmq.api.tenant.TenantService;
-import com.bearmq.api.tenant.dto.TenantInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,13 +21,16 @@ public class AuthController {
 
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> register(@RequestBody final RegisterRequest registerRequest) {
-    final TenantInfo tenantInfo = tenantService.create(registerRequest);
+    final var tenantInfo = tenantService.create(registerRequest);
 
-    return ResponseEntity.ok(authComponent.authenticate(tenantInfo));
+    return ResponseEntity.ok(AuthResponse.builder()
+            .token("token123")
+            .refreshToken("refreshToken123")
+            .build());
   }
 
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(final @RequestBody AuthRequest authRequest)  {
+  public ResponseEntity<AuthResponse> login(final @RequestBody AuthRequest authRequest) {
     return ResponseEntity.ok(authComponent.authenticate(authRequest));
   }
 }

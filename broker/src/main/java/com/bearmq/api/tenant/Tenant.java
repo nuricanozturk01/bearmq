@@ -1,7 +1,7 @@
 package com.bearmq.api.tenant;
 
-import com.bearmq.api.subscriptionplan.SubscriptionPlan;
-import com.bearmq.model.VirtualHost;
+import com.bearmq.api.subscription.SubscriptionPlan;
+import com.bearmq.shared.vhost.VirtualHost;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -43,6 +43,12 @@ public class Tenant {
 
   @Column(nullable = false, length = 150, unique = true)
   private String email;
+
+  @Column(nullable = false)
+  private String password;
+
+  @Column(nullable = false, length = 16)
+  private String salt;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,11 +1,11 @@
 package com.bearmq;
 
-import com.bearmq.api.subscriptionplan.SubscriptionPlan;
-import com.bearmq.api.subscriptionplan.SubscriptionPlanRepository;
-import com.bearmq.api.subscriptionplan.SubscriptionPlans;
-import com.bearmq.broker.BrokerServer;
-import com.bearmq.broker.Constant;
-import com.bearmq.metrics.MetricServer;
+import com.bearmq.api.subscription.SubscriptionPlan;
+import com.bearmq.api.subscription.SubscriptionPlanRepository;
+import com.bearmq.api.subscription.SubscriptionPlans;
+import com.bearmq.server.broker.runner.BrokerServer;
+import com.bearmq.server.broker.Constant;
+import com.bearmq.server.metrics.runner.MetricServer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;

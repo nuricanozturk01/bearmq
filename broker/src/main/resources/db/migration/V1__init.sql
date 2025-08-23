@@ -71,7 +71,9 @@ CREATE TABLE tenant
 (
     id                   VARCHAR(26)                   NOT NULL,
     full_name            VARCHAR(255),
+    password             VARCHAR(255)                  NOT NULL,
     username             VARCHAR(150)                  NOT NULL,
+    salt                 VARCHAR(16)                   NOT NULL,
     email                VARCHAR(150)                  NOT NULL,
     created_at           TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
     subscription_plan_id VARCHAR(255)                  NOT NULL,
@@ -116,22 +118,25 @@ ALTER TABLE virtual_host
     ADD CONSTRAINT "uc_vırtual_host_username" UNIQUE (username);
 
 ALTER TABLE binding
-    ADD CONSTRAINT FK_BINDING_ON_DESTINATION_EXCHANGE FOREIGN KEY (destination_exchange_id) REFERENCES exchange (id);
+    ADD CONSTRAINT FK_BINDING_ON_DESTINATION_EXCHANGE FOREIGN KEY (destination_exchange_id) REFERENCES exchange (id)
+        ON DELETE CASCADE;
 
 ALTER TABLE binding
-    ADD CONSTRAINT FK_BINDING_ON_DESTINATION_QUEUE FOREIGN KEY (destination_queue_id) REFERENCES queue (id);
+    ADD CONSTRAINT FK_BINDING_ON_DESTINATION_QUEUE FOREIGN KEY (destination_queue_id) REFERENCES queue (id)
+        ON DELETE CASCADE;
 
 ALTER TABLE binding
-    ADD CONSTRAINT FK_BINDING_ON_SOURCE_EXCHANGE FOREIGN KEY (source_exchange_id) REFERENCES exchange (id);
+    ADD CONSTRAINT FK_BINDING_ON_SOURCE_EXCHANGE FOREIGN KEY (source_exchange_id) REFERENCES exchange (id)
+        ON DELETE CASCADE;
 
 ALTER TABLE binding
-    ADD CONSTRAINT FK_BINDING_ON_VHOST FOREIGN KEY (vhost_id) REFERENCES virtual_host (id);
+    ADD CONSTRAINT FK_BINDING_ON_VHOST FOREIGN KEY (vhost_id) REFERENCES virtual_host (id) ON DELETE CASCADE;
 
 ALTER TABLE exchange
-    ADD CONSTRAINT FK_EXCHANGE_ON_VHOST FOREIGN KEY (vhost_id) REFERENCES virtual_host (id);
+    ADD CONSTRAINT FK_EXCHANGE_ON_VHOST FOREIGN KEY (vhost_id) REFERENCES virtual_host (id) ON DELETE CASCADE;
 
 ALTER TABLE queue
-    ADD CONSTRAINT FK_QUEUE_ON_VHOST FOREIGN KEY (vhost_id) REFERENCES virtual_host (id);
+    ADD CONSTRAINT FK_QUEUE_ON_VHOST FOREIGN KEY (vhost_id) REFERENCES virtual_host (id) ON DELETE CASCADE;
 
 ALTER TABLE tenant
     ADD CONSTRAINT FK_TENANT_ON_SUBSCRIPTION_PLAN FOREIGN KEY (subscription_plan_id) REFERENCES subscription_plan (name);

@@ -3,28 +3,32 @@ package com.bearmq.api.broker;
 import com.bearmq.api.tenant.Tenant;
 import com.bearmq.api.tenant.TenantRepository;
 import com.bearmq.api.tenant.dto.TenantInfo;
-import com.bearmq.broker.dto.BindRequest;
-import com.bearmq.broker.dto.BrokerRequest;
-import com.bearmq.broker.dto.ExchangeRequest;
-import com.bearmq.broker.dto.QueueRequest;
-import com.bearmq.broker.dto.VirtualHostInfo;
-import com.bearmq.model.Binding;
-import com.bearmq.model.BindingRepository;
-import com.bearmq.model.BrokerConverter;
-import com.bearmq.model.DestinationType;
-import com.bearmq.model.Exchange;
-import com.bearmq.model.ExchangeRepository;
-import com.bearmq.model.OverflowPolicy;
-import com.bearmq.model.Queue;
-import com.bearmq.model.QueueRepository;
-import com.bearmq.model.Status;
-import com.bearmq.model.VirtualHost;
-import com.bearmq.model.VirtualHostConverter;
-import com.bearmq.model.VirtualHostRepository;
+import com.bearmq.api.broker.dto.BindRequest;
+import com.bearmq.api.broker.dto.BrokerRequest;
+import com.bearmq.api.broker.dto.ExchangeRequest;
+import com.bearmq.api.broker.dto.QueueRequest;
+import com.bearmq.server.broker.dto.VirtualHostInfo;
+import com.bearmq.shared.binding.Binding;
+import com.bearmq.shared.binding.BindingRepository;
+import com.bearmq.shared.converter.BrokerConverter;
+import com.bearmq.shared.binding.DestinationType;
+import com.bearmq.shared.exchange.Exchange;
+import com.bearmq.shared.exchange.ExchangeRepository;
+import com.bearmq.shared.queue.OverflowPolicy;
+import com.bearmq.shared.queue.Queue;
+import com.bearmq.shared.queue.QueueRepository;
+import com.bearmq.shared.broker.Status;
+import com.bearmq.shared.vhost.VirtualHost;
+import com.bearmq.shared.vhost.VirtualHostConverter;
+import com.bearmq.shared.vhost.VirtualHostRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +50,7 @@ public class BrokerApiFacade {
   private final TenantRepository tenantRepository;
   private final VirtualHostRepository virtualHostRepository;
   private final QueueRepository queueRepository;
-  private final BindingRepository  bindingRepository;
+  private final BindingRepository bindingRepository;
   private final ExchangeRepository exchangeRepository;
 
   private final VirtualHostConverter virtualHostConverter;
@@ -74,6 +78,48 @@ public class BrokerApiFacade {
     if (!request.bindings().isEmpty()) {
       saveBindings(vhost, exchanges, queues, request.bindings());
     }
+  }
+
+  @Transactional
+  public VirtualHostInfo createVirtualHost(final TenantInfo tenantInfo) {
+    final Tenant tenant = tenantRepository.findByUsername(tenantInfo.username())
+            .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
+
+    final int randomDigit = random.nextInt(MIN_DIGITS, MAX_DIGITS);
+
+    final var vhostDomain = String.format("%s.%s",
+            secure().next(randomDigit, true, false).toLowerCase(ROOT), domain);
+
+    final String username = secure()
+            .next(randomDigit, true, false)
+            .toLowerCase(ROOT);
+
+    final String password = secure().next(randomDigit, true, false);
+    final String encodedPassword = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
+
+    final String name = format("%s-%s", tenantInfo.username(),
+            secure().next(randomDigit, true, false).toLowerCase(ROOT));
+
+    final var vhostObj = new VirtualHost();
+
+    vhostObj.setName(name);
+    vhostObj.setUsername(username);
+    vhostObj.setPassword(encodedPassword);
+    vhostObj.setDomain(vhostDomain);
+    vhostObj.setUrl(vhostDomain);
+    vhostObj.setId(UlidCreator.getUlid().toString());
+    vhostObj.setTenant(tenant);
+    vhostObj.setStatus(Status.ACTIVE);
+
+    virtualHostRepository.save(vhostObj);
+
+    return virtualHostConverter.convert(vhostObj);
+  }
+
+  public void deleteVirtualHost(final TenantInfo tenantInfo, final String vhostId) {
+    final var vhost = virtualHostRepository.findByTenantIdAndId(tenantInfo.id(), vhostId)
+            .orElseThrow(() -> new RuntimeException("vhost is not found!"));
+    virtualHostRepository.delete(vhost);
   }
 
   private void saveBindings(VirtualHost vhost, List<Exchange> exchanges, List<Queue> queues, List<BindRequest> bindings) {
@@ -121,9 +167,12 @@ public class BrokerApiFacade {
             .toList();
 
     for (final var exchange : exchangeObjects) {
+      final String actualName = String.format("exchange-%s",
+              secure().next(random.nextInt(MIN_DIGITS, MAX_DIGITS), true, false).toLowerCase(ROOT));
+
       exchange.setId(UlidCreator.getUlid().toString());
       exchange.setVhost(vhost);
-      exchange.setActualName(secure().next(random.nextInt(MIN_DIGITS, MAX_DIGITS), true, false).toLowerCase(ROOT));
+      exchange.setActualName(actualName);
       exchange.setStatus(Status.ACTIVE);
     }
 
@@ -136,9 +185,11 @@ public class BrokerApiFacade {
             .toList();
 
     for (final var queue : queueObjects) {
+      final String actualName = String.format("queue-%s",
+              secure().next(random.nextInt(MIN_DIGITS, MAX_DIGITS), true, false).toLowerCase(ROOT));
       queue.setId(UlidCreator.getUlid().toString());
       queue.setVhost(vhost);
-      queue.setActualName(secure().next(random.nextInt(MIN_DIGITS, MAX_DIGITS), true, false).toLowerCase(ROOT));
+      queue.setActualName(actualName);
       queue.setStatus(Status.ACTIVE);
       // for now
       queue.setOverflowPolicy(OverflowPolicy.DEAD_LETTER_QUEUE);
@@ -148,39 +199,14 @@ public class BrokerApiFacade {
     return queueRepository.saveAll(queueObjects);
   }
 
-  @Transactional
-  public VirtualHostInfo createVirtualHost(final TenantInfo tenantInfo) {
-    final Tenant tenant = tenantRepository.findByUsername(tenantInfo.username())
-            .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
+  public Page<VirtualHostInfo> findAllByUserId(
+          final TenantInfo tenantInfo,
+          final @NotNull Pageable pageable) {
+    final var vhosts = virtualHostRepository.findAllByTenantId(tenantInfo.id(), pageable)
+            .stream()
+            .map(virtualHostConverter::convert)
+            .toList();
 
-    final int randomDigit = random.nextInt(MIN_DIGITS, MAX_DIGITS);
-
-    final var vhostDomain = String.format("%s.%s",
-            secure().next(randomDigit, true, false).toLowerCase(ROOT), domain);
-
-    final String username = secure()
-            .next(randomDigit, true, false)
-            .toLowerCase(ROOT);
-
-    final String password = secure().next(randomDigit, true, false);
-    final String encodedPassword = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
-
-    final String name = format("%s-%s", tenantInfo.username(),
-            secure().next(randomDigit, true, false).toLowerCase(ROOT));
-
-    final var vhostObj = new VirtualHost();
-
-    vhostObj.setName(name);
-    vhostObj.setUsername(username);
-    vhostObj.setPassword(encodedPassword);
-    vhostObj.setDomain(vhostDomain);
-    vhostObj.setUrl(vhostDomain);
-    vhostObj.setId(UlidCreator.getUlid().toString());
-    vhostObj.setTenant(tenant);
-    vhostObj.setStatus(Status.ACTIVE);
-
-    virtualHostRepository.save(vhostObj);
-
-    return virtualHostConverter.convert(vhostObj);
+    return new PageImpl<>(vhosts, pageable, vhosts.size());
   }
 }
