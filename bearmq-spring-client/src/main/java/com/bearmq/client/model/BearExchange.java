@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public final class BearExchange {
-
   public enum Type {DIRECT, FANOUT, TOPIC, HEADERS}
 
   private final String name;

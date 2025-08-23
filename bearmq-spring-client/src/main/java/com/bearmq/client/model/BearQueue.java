@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public final class BearQueue {
   private final String name;
   private final String actualName;
@@ -45,7 +46,6 @@ public final class BearQueue {
     return arguments;
   }
 
-  // ---- Builder ----
   public static class Builder {
     private String name;
     private String actualName;

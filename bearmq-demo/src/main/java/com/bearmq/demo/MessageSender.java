@@ -12,7 +12,7 @@ public class MessageSender {
   private final BearTemplate bearTemplate;
 
   public void send() {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1000; i++) {
       final var student = Student.builder()
               .address("Address" + i)
               .name("Name" + i)
@@ -20,6 +20,7 @@ public class MessageSender {
               .build();
 
       bearTemplate.convertAndSend("exchangeA", "", student);
+      log.info("Sending student " + i);
     }
 
     log.warn("Sent 10 student data to queueX and queueY");

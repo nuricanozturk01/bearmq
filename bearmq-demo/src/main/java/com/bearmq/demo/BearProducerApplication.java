@@ -23,6 +23,6 @@ public class BearProducerApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    executor.scheduleAtFixedRate(messageSender::send, 0, 10, TimeUnit.SECONDS);
+    //executor.scheduleAtFixedRate(messageSender::send, 1, 30, TimeUnit.SECONDS);
   }
 }

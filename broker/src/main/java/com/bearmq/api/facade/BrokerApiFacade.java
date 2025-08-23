@@ -43,7 +43,7 @@ public class BrokerApiFacade {
     }
 
     List<Binding> bindings = List.of();
-    if (!request.bindings().isEmpty()) {
+    if (!request.bindings().isEmpty() && (!queues.isEmpty() || !exchanges.isEmpty())) {
       bindings = bindingService.createAll(vhost, exchanges, queues, request.bindings());
     }
 

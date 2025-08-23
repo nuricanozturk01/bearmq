@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public final class BearBinding {
   private final String exchange;
   private final String destination;
@@ -14,7 +15,7 @@ public final class BearBinding {
   private final boolean noWait;
   private final BearQueue lazyQueue;
 
-  public enum DestinationType { QUEUE, EXCHANGE }
+  public enum DestinationType {QUEUE, EXCHANGE}
 
   private BearBinding(Builder b) {
     this.exchange = Objects.requireNonNull(b.exchange, "exchange");
@@ -26,16 +27,34 @@ public final class BearBinding {
     this.lazyQueue = b.lazyQueue;
   }
 
-  public String getExchange() { return exchange; }
-  public String getDestination() { return lazyQueue != null ? lazyQueue.name() : destination; }
-  public DestinationType getDestinationType() { return destinationType; }
+  public String getExchange() {
+    return exchange;
+  }
+
+  public String getDestination() {
+    return lazyQueue != null ? lazyQueue.name() : destination;
+  }
+
+  public DestinationType getDestinationType() {
+    return destinationType;
+  }
+
   public String getRoutingKey() {
     if (routingKey == null && lazyQueue != null) return lazyQueue.name();
     return routingKey;
   }
-  public Map<String, Object> getArguments() { return arguments; }
-  public boolean isNoWait() { return noWait; }
-  public boolean isDestinationQueue() { return DestinationType.QUEUE.equals(destinationType); }
+
+  public Map<String, Object> getArguments() {
+    return arguments;
+  }
+
+  public boolean isNoWait() {
+    return noWait;
+  }
+
+  public boolean isDestinationQueue() {
+    return DestinationType.QUEUE.equals(destinationType);
+  }
 
   public static class Builder {
     private String exchange;
@@ -46,15 +65,48 @@ public final class BearBinding {
     private boolean noWait = false;
     private BearQueue lazyQueue;
 
-    public Builder exchange(String exchange) { this.exchange = exchange; return this; }
-    public Builder destination(String destination) { this.destination = destination; return this; }
-    public Builder destinationType(DestinationType type) { this.destinationType = type; return this; }
-    public Builder routingKey(String key) { this.routingKey = key; return this; }
-    public Builder argument(String k, Object v) { this.arguments.put(k, v); return this; }
-    public Builder arguments(Map<String, Object> args) { this.arguments = args; return this; }
-    public Builder noWait(boolean nw) { this.noWait = nw; return this; }
-    public Builder lazyQueue(BearQueue q) { this.lazyQueue = q; return this; }
+    public Builder exchange(String exchange) {
+      this.exchange = exchange;
+      return this;
+    }
 
-    public BearBinding build() { return new BearBinding(this); }
+    public Builder destination(String destination) {
+      this.destination = destination;
+      return this;
+    }
+
+    public Builder destinationType(DestinationType type) {
+      this.destinationType = type;
+      return this;
+    }
+
+    public Builder routingKey(String key) {
+      this.routingKey = key;
+      return this;
+    }
+
+    public Builder argument(String k, Object v) {
+      this.arguments.put(k, v);
+      return this;
+    }
+
+    public Builder arguments(Map<String, Object> args) {
+      this.arguments = args;
+      return this;
+    }
+
+    public Builder noWait(boolean nw) {
+      this.noWait = nw;
+      return this;
+    }
+
+    public Builder lazyQueue(BearQueue q) {
+      this.lazyQueue = q;
+      return this;
+    }
+
+    public BearBinding build() {
+      return new BearBinding(this);
+    }
   }
 }

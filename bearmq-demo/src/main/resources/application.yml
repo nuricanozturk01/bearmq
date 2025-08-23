@@ -1,10 +1,10 @@
 bearmq:
-  username: audittracer
-  password: audittracer123
+  username: sacrfazeuahqkjkxtupeccwf
+  password: IYsHoguYbZEMGKKjtfEJXqAs
   host: localhost
   port: 6667
-  virtual-host: audittracer
-  api-key: TESTTESTTESTTESTTESTTEST
+  virtual-host: nuricanozturk-huecezyjzbrjjmxqqyxqjdqm
+  api-key: dmafvEHBVmmesVBudwtzZSbgCIBthBoRMyrARcRvaGFdOyssVqga
   listener:
     simple:
       retry:

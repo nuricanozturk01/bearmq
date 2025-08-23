@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
@@ -29,7 +31,14 @@ public class QueueService {
             .map(brokerConverter::toQueue)
             .toList();
 
+    final Set<String> existingNames = queueRepository.findAllByVhostId(vhost.getId())
+            .stream().map(Queue::getName).collect(Collectors.toSet());
+
     for (final var queue : queueObjects) {
+      if (existingNames.contains(queue.getName())) {
+        continue;
+      }
+
       final String actualName = String.format("queue-%s",
               secure().next(random.nextInt(MIN_DIGITS, MAX_DIGITS), true, false).toLowerCase(ROOT));
       queue.setId(UlidCreator.getUlid().toString());
@@ -41,7 +50,7 @@ public class QueueService {
       queue.setMaxMessage(1024);
     }
 
-    return queueRepository.saveAll(queueObjects);
+    return queueRepository.saveAll(queueObjects.stream().filter(q -> !existingNames.contains(q.getName())).toList());
   }
 
   public List<Queue> findAllByVhostId(String vhostId) {

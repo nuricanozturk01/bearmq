@@ -8,40 +8,39 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BearConfig {
-
   @Bean
-  BearQueue queueA() {
-    return new BearQueue.Builder().name("queue-a").durable(true).build();
+  BearQueue queueX() {
+    return new BearQueue.Builder().name("queueX").durable(true).build();
   }
 
   @Bean
-  BearQueue queueB() {
-    return new BearQueue.Builder().name("queue-b").durable(true).build();
+  BearQueue queueY() {
+    return new BearQueue.Builder().name("queueY").durable(true).build();
   }
 
   @Bean
-  BearExchange exchangeX() {
+  BearExchange exchangeA() {
     return new BearExchange.Builder()
-            .name("exchange-x")
+            .name("exchangeA")
             .type(BearExchange.Type.FANOUT)
             .durable(true)
             .build();
   }
 
   @Bean
-  BearBinding bindA(BearExchange exchangeX, BearQueue queueA) {
+  BearBinding bindA(final BearExchange exchangeA, final BearQueue queueX) {
     return new BearBinding.Builder()
-            .exchange(exchangeX.name())
-            .destination(queueA.name())
+            .exchange(exchangeA.name())
+            .destination(queueX.name())
             .destinationType(BearBinding.DestinationType.QUEUE)
             .build();
   }
 
   @Bean
-  BearBinding bindB(BearExchange exchangeX, BearQueue queueB) {
+  BearBinding bindB(final BearExchange exchangeA, final BearQueue queueY) {
     return new BearBinding.Builder()
-            .exchange(exchangeX.name())
-            .destination(queueB.name())
+            .exchange(exchangeA.name())
+            .destination(queueY.name())
             .destinationType(BearBinding.DestinationType.QUEUE)
             .build();
   }

@@ -69,4 +69,14 @@ public class BearConfig {
   public void setRetry(BearRetryConfig retry) {
     this.retry = retry;
   }
+
+  public String getUrl() {
+    if (host == null) {
+      throw new IllegalStateException("host is null");
+    } else if (host.contains("localhost") || host.contains("127.0.0.1") || host.contains("http")) {
+      return String.format("http://%s:%d", host, 3333);
+    }  else {
+      return String.format("https://%s:%d", host, 3333);
+    }
+  }
 }
