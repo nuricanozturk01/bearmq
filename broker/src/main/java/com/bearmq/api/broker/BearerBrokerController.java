@@ -2,6 +2,7 @@ package com.bearmq.api.broker;
 
 import com.bearmq.api.auth.AuthComponent;
 import com.bearmq.api.auth.AuthUtils;
+import com.bearmq.api.facade.BrokerApiFacade;
 import com.bearmq.api.tenant.dto.TenantInfo;
 import com.bearmq.api.broker.dto.BrokerRequest;
 import com.bearmq.server.broker.dto.VirtualHostInfo;
