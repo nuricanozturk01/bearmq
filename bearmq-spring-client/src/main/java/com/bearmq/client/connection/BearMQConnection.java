@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConnectBearMQ {
+public class BearMQConnection {
 
   @PostConstruct
   public void init() {

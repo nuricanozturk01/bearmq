@@ -38,6 +38,8 @@ public class BrokerApplication implements ApplicationRunner {
     brokerThread.setDaemon(false);
     brokerThread.start();
 
+    brokerServer.loadCurrentQueues();
+
     if (isMetricEnabled && metricServer.isPresent()) {
       Thread metricsThread = new Thread(metricServer.get()::run, Constant.METRICS_THREAD_NAME);
       metricServer.get().getThreads().add(brokerThread);
@@ -46,7 +48,6 @@ public class BrokerApplication implements ApplicationRunner {
     }
 
     persistSubscriptionPlans();
-    brokerServer.loadCurrentQueues();
   }
 
   private void persistSubscriptionPlans() {

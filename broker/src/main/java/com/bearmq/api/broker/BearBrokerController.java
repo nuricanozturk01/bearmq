@@ -34,11 +34,8 @@ public class BearBrokerController {
   @PostMapping
   public ResponseEntity<Boolean> create(
           @RequestBody final BrokerRequest brokerRequest,
-          @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
           @RequestHeader(API_KEY_HEADER) final String apiKey) {
-    final String token = AuthUtils.checkBearerTokenValidityAndGet(bearerToken);
-
-    final TenantInfo tenantInfo = authComponent.authorize(apiKey, token);
+    final TenantInfo tenantInfo = authComponent.authorize(apiKey);
 
     brokerApiFacade.createBrokerObjects(brokerRequest, tenantInfo);
 

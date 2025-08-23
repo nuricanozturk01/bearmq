@@ -40,4 +40,8 @@ public class AuthComponent {
     // extract username in token.
     return tenantService.findByApiKey(apiKey);
   }
+
+  public TenantInfo authorize(final String apiKey) {
+    return tenantService.findByApiKey(apiKey);
+  }
 }

@@ -98,6 +98,7 @@ public class VirtualHostService {
             .orElseThrow(() -> new RuntimeException("vhost is not found!"));
   }
 
+  @Transactional(readOnly = true)
   public VirtualHost findByVhostInfo(
           final String tenantId,
           final String vhost,
