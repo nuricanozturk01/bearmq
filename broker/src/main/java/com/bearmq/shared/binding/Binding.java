@@ -90,7 +90,10 @@ public final class Binding {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof Binding b)) return false;
+    if (!(o instanceof Binding b)) {
+      return false;
+    }
+
     return Objects.equals(id, b.id);
   }
 

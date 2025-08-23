@@ -8,6 +8,5 @@ public record ExchangeRequest(
         boolean durable,
         boolean internal,
         boolean delayed,
-        Map<String, Object> args
-) {
+        Map<String, Object> args) {
 }

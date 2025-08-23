@@ -2,6 +2,8 @@ package com.bearmq.api.facade;
 
 import com.bearmq.api.tenant.dto.TenantInfo;
 import com.bearmq.api.broker.dto.BrokerRequest;
+import com.bearmq.server.broker.facade.BrokerServerFacade;
+import com.bearmq.shared.binding.Binding;
 import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import com.bearmq.shared.binding.BindingService;
 import com.bearmq.shared.exchange.Exchange;
@@ -24,6 +26,7 @@ public class BrokerApiFacade {
   private final ExchangeService exchangeService;
   private final QueueService queueService;
   private final BindingService bindingService;
+  private final BrokerServerFacade brokerServerFacade;
 
   @Transactional
   public void createBrokerObjects(final BrokerRequest request, final TenantInfo tenantInfo) {
@@ -39,9 +42,12 @@ public class BrokerApiFacade {
       exchanges = exchangeService.createAll(vhost, request.exchanges());
     }
 
+    List<Binding> bindings = List.of();
     if (!request.bindings().isEmpty()) {
-      bindingService.createAll(vhost, exchanges, queues, request.bindings());
+      bindings = bindingService.createAll(vhost, exchanges, queues, request.bindings());
     }
+
+    brokerServerFacade.prepareAndUpQeueues(vhost, queues, bindings);
   }
 
   public VirtualHostInfo createVirtualHost(final TenantInfo tenantInfo) {

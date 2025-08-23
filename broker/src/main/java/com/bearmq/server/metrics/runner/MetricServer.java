@@ -1,9 +1,10 @@
 package com.bearmq.server.metrics.runner;
 
-import com.bearmq.server.config.ThreadMetrics;
+import com.bearmq.server.metrics.ThreadMetrics;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.io.Closeable;
@@ -14,8 +15,9 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
 @Service
+@ConditionalOnProperty(value = "bearmq.server.metrics.enabled", havingValue = "true")
+@Slf4j
 @RequiredArgsConstructor
 @Data
 public class MetricServer implements Closeable {
@@ -30,6 +32,7 @@ public class MetricServer implements Closeable {
 
   public void run() {
     log.warn("MetricServer started on port " + datagramSocket.getLocalPort());
+
     final Runnable writeMetricsCallback = () -> ThreadMetrics.printUsage(threads.getFirst());
     scheduledPool.scheduleAtFixedRate(writeMetricsCallback, 3, 5, TimeUnit.SECONDS);
   }

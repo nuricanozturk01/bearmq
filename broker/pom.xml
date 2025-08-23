@@ -77,7 +77,7 @@
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-queue</artifactId>
-            <version>5.25ea6</version>
+            <version>5.27ea8</version>
         </dependency>
 
         <dependency>
@@ -121,6 +121,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.openhft</groupId>
+                <artifactId>chronicle-bom</artifactId>
+                <version>2.27ea8</version> <!-- queue 5.27ea8 ile uyumlu -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

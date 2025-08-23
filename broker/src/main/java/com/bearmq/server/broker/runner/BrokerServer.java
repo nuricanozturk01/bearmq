@@ -1,5 +1,6 @@
 package com.bearmq.server.broker.runner;
 
+import com.bearmq.server.broker.facade.BrokerServerFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -22,10 +22,13 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor
 @SuppressWarnings("all")
 public class BrokerServer implements Closeable {
-  private final int DEFAULT_CUNK_SIZE = 1024 * 4;
+  private static final int DEFAULT_CUNK_SIZE = 1024 * 4;
+  private static final int MAX_MESSAGE_SIZE = 16 * 16 * 1024;
+
   private final ServerSocket serverSocket;
   private final ExecutorService executorService;
   private final ObjectMapper objectMapper;
+  private final BrokerServerFacade brokerFacade;
 
   @PreDestroy
   public void destroy() throws IOException {
@@ -56,7 +59,7 @@ public class BrokerServer implements Closeable {
     try (final DataInputStream dataInputStream = new DataInputStream(socket.getInputStream())) {
       final int messageLength = dataInputStream.readInt();
 
-      if (messageLength <= 0 || messageLength > 16 * 16 * 1024) {
+      if (messageLength <= 0 || messageLength > MAX_MESSAGE_SIZE) {
         log.error("Invalid message length: " + messageLength);
       }
 
@@ -78,11 +81,10 @@ public class BrokerServer implements Closeable {
         expectedIdx++;
       }
 
-      final Map<String, Object> oboj = objectMapper.readValue(bytes, Map.class);
-      final var decodedBody = Base64.getDecoder().decode(oboj.get("body").toString());
-      oboj.put("body", decodedBody);
+      final Map<String, Object> mapObject = objectMapper.readValue(bytes, Map.class);
+      log.warn("Received data from client: {}", mapObject);
 
-
+      brokerFacade.identifyOperationAndApply(mapObject);
     } catch (final Exception e) {
       Thread.currentThread().interrupt();
       log.error("Error accepting connection", e);

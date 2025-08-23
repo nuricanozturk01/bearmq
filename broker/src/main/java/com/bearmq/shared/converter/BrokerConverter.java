@@ -6,6 +6,8 @@ import com.bearmq.api.broker.dto.QueueRequest;
 import com.bearmq.shared.binding.Binding;
 import com.bearmq.shared.exchange.Exchange;
 import com.bearmq.shared.queue.Queue;
+import com.bearmq.shared.vhost.VirtualHost;
+import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -19,4 +21,6 @@ public interface BrokerConverter {
 
   @Mapping(ignore = true, target = "arguments")
   Exchange toExchange(ExchangeRequest exchangeRequest);
+
+  VirtualHostInfo convert(VirtualHost virtualHost);
 }

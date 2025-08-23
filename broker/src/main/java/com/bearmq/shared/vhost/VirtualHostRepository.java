@@ -13,4 +13,6 @@ public interface VirtualHostRepository extends JpaRepository<VirtualHost, String
   Optional<VirtualHost> findByTenantIdAndId(String tenantId, String id);
 
   Page<VirtualHost> findAllByTenantId(String id, @NotNull Pageable pageable);
+
+  Optional<VirtualHost> findByTenantIdAndNameAndUsernameAndPassword(String tenantId, String name, String username, String password);
 }

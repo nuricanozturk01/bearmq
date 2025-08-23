@@ -3,6 +3,7 @@ package com.bearmq.shared.vhost;
 import com.bearmq.api.tenant.Tenant;
 import com.bearmq.api.tenant.TenantRepository;
 import com.bearmq.api.tenant.dto.TenantInfo;
+import com.bearmq.shared.converter.BrokerConverter;
 import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import com.bearmq.shared.broker.Status;
 import com.github.f4b6a3.ulid.UlidCreator;
@@ -28,8 +29,9 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 public class VirtualHostService {
   private static final int MIN_DIGITS = 8;
   private static final int MAX_DIGITS = 30;
+
   private final VirtualHostRepository repository;
-  private final VirtualHostConverter converter;
+  private final BrokerConverter converter;
   private final TenantRepository tenantRepository;
   private final Random random;
 
@@ -92,6 +94,15 @@ public class VirtualHostService {
   @Transactional(readOnly = true)
   public VirtualHost findByTenantIdAndVhostName(String id, String vhost) {
     return repository.findByTenantIdAndName(id, vhost)
+            .orElseThrow(() -> new RuntimeException("vhost is not found!"));
+  }
+
+  public VirtualHost findByVhostInfo(
+          final String tenantId,
+          final String vhost,
+          final String username,
+          final String password) {
+    return repository.findByTenantIdAndNameAndUsernameAndPassword(tenantId, vhost, username, password)
             .orElseThrow(() -> new RuntimeException("vhost is not found!"));
   }
 }

@@ -1,18 +1,21 @@
-package com.bearmq.server.config;
+package com.bearmq.server.broker.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Configuration
 @Lazy
-public class SocketConfig {
-
+public class BrokerServerConfig {
   @Bean
   public ServerSocket provideServerSocket(
           @Value("${bearmq.server.broker.port}") final int port,
@@ -20,11 +23,10 @@ public class SocketConfig {
     return new ServerSocket(port, backlog);
   }
 
-
   @Bean
-  public DatagramSocket provideDatagramSocket(
-          @Value("${bearmq.server.metrics.port}") final int port
-  ) throws IOException {
-    return new DatagramSocket(port);
+  @Scope("prototype")
+  @Primary
+  public ExecutorService provideCachedThreadPool() {
+    return Executors.newCachedThreadPool();
   }
 }

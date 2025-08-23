@@ -60,7 +60,7 @@ public class TenantService {
     return tenantConverter.toTenantAuthenticateInfo(tenant);
   }
 
-  public TenantInfo findByApiKey(String apiKey) {
+  public TenantInfo findByApiKey(final String apiKey) {
     return tenantRepository.findByApiKey(apiKey)
             .map(tenantConverter::toTenantInfo)
             .orElseThrow(() -> new RuntimeException("Tenant Not Found"));

@@ -37,6 +37,7 @@ public class AuthComponent {
 
   // Sample code. We need skip auth parts for accelerate development
   public TenantInfo authorize(final String apiKey, String token) {
+    // extract username in token.
     return tenantService.findByApiKey(apiKey);
   }
 }

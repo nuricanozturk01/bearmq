@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/broker")
 @RestController
 @RequiredArgsConstructor
-public class BearerBrokerController {
+public class BearBrokerController {
   private static final String API_KEY_HEADER = "X-API-KEY";
 
   private final BrokerApiFacade brokerApiFacade;

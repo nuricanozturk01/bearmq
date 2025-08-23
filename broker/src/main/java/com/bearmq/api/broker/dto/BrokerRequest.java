@@ -7,5 +7,5 @@ public record BrokerRequest(
         int schemaVersion,
         List<ExchangeRequest> exchanges,
         List<QueueRequest> queues,
-        List<BindRequest> bindings
-) {}
+        List<BindRequest> bindings) {
+}

@@ -15,13 +15,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootApplication
 @EnableAsync
 @RequiredArgsConstructor
 public class BrokerApplication implements ApplicationRunner {
   private final BrokerServer brokerServer;
-  private final MetricServer metricServer;
+  private final Optional<MetricServer> metricServer;
   private final SubscriptionPlanRepository subscriptionPlanRepository;
 
   @Value("${bearmq.server.metrics.enabled}")
@@ -37,9 +38,9 @@ public class BrokerApplication implements ApplicationRunner {
     brokerThread.setDaemon(false);
     brokerThread.start();
 
-    if (isMetricEnabled) {
-      Thread metricsThread = new Thread(metricServer::run, Constant.METRICS_THREAD_NAME);
-      metricServer.getThreads().add(brokerThread);
+    if (isMetricEnabled && metricServer.isPresent()) {
+      Thread metricsThread = new Thread(metricServer.get()::run, Constant.METRICS_THREAD_NAME);
+      metricServer.get().getThreads().add(brokerThread);
       metricsThread.setDaemon(false);
       metricsThread.start();
     }

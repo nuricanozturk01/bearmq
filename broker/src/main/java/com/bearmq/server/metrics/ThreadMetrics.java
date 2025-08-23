@@ -1,4 +1,4 @@
-package com.bearmq.server.config;
+package com.bearmq.server.metrics;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;

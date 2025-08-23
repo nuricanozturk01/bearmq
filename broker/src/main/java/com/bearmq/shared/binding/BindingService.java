@@ -23,7 +23,7 @@ public class BindingService {
   private final BindingRepository bindingRepository;
   private final BrokerConverter brokerConverter;
 
-  public void createAll(
+  public List<Binding> createAll(
           final VirtualHost vhost,
           final List<Exchange> exchanges,
           final List<Queue> queues,
@@ -48,16 +48,15 @@ public class BindingService {
 
       setDestinations(destType, queueByName, req, exchangeByName, b);
 
-      // source
-      final Exchange srcEx = Optional.ofNullable(exchangeByName.get(req.source()))
+      final Exchange sourceExchange = Optional.ofNullable(exchangeByName.get(req.source()))
               .orElseThrow(() -> new RuntimeException("source is not found!"));
-      b.setSourceExchangeRef(srcEx);
-      b.setSourceExchangeId(srcEx.getId());
+      b.setSourceExchangeRef(sourceExchange);
+      b.setSourceExchangeId(sourceExchange.getId());
 
       toPersist.add(b);
     }
 
-    bindingRepository.saveAll(toPersist);
+    return bindingRepository.saveAll(toPersist);
   }
 
   private void setDestinations(

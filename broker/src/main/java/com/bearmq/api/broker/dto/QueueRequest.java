@@ -10,6 +10,5 @@ public record QueueRequest(
         boolean exclusive,
         @JsonProperty("auto_delete")
         boolean autoDelete,
-        Map<String, Object> arguments
-) {
+        Map<String, Object> arguments) {
 }
