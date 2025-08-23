@@ -51,4 +51,7 @@ public class ExchangeService {
     return exchangeRepository.saveAll(exchangeObjects.stream().filter(q -> !existingNames.contains(q.getName())).toList());
   }
 
+  public List<Exchange> findAllByVhostId(String id) {
+    return exchangeRepository.findListByVhostId(id);
+  }
 }

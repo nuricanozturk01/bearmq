@@ -72,7 +72,6 @@ public class TopologyRegistrar implements SmartInitializingSingleton {
             bDtos
     );
 
-    // 4) POST
     rest.post()
             .uri("/api/broker")
             .header(API_KEY_HEADER, props.getApiKey())

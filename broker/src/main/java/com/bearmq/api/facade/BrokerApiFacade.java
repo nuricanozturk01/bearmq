@@ -32,22 +32,22 @@ public class BrokerApiFacade {
   public void createBrokerObjects(final BrokerRequest request, final TenantInfo tenantInfo) {
     final var vhost = virtualHostService.findByTenantIdAndVhostName(tenantInfo.id(), request.vhost());
 
-    List<Queue> queues = List.of();
     if (!request.queues().isEmpty()) {
-      queues = queueService.createAll(vhost, request.queues());
+      queueService.createAll(vhost, request.queues());
+    }
+    if (!request.exchanges().isEmpty()) {
+      exchangeService.createAll(vhost, request.exchanges());
     }
 
-    List<Exchange> exchanges = List.of();
-    if (!request.exchanges().isEmpty()) {
-      exchanges = exchangeService.createAll(vhost, request.exchanges());
-    }
+    final var allQueues = queueService.findAllByVhostId(vhost.getId());
+    final var allExchanges = exchangeService.findAllByVhostId(vhost.getId());
 
     List<Binding> bindings = List.of();
-    if (!request.bindings().isEmpty() && (!queues.isEmpty() || !exchanges.isEmpty())) {
-      bindings = bindingService.createAll(vhost, exchanges, queues, request.bindings());
+    if (!request.bindings().isEmpty()) {
+      bindings = bindingService.createAll(vhost, allExchanges, allQueues, request.bindings());
     }
 
-    brokerServerFacade.prepareAndUpQueues(vhost, queues, bindings);
+    brokerServerFacade.prepareAndUpQueues(vhost, allQueues, bindings);
   }
 
   public VirtualHostInfo createVirtualHost(final TenantInfo tenantInfo) {

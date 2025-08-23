@@ -1,0 +1,18 @@
+bearmq:
+  username: sacrfazeuahqkjkxtupeccwf
+  password: IYsHoguYbZEMGKKjtfEJXqAs
+  host: localhost
+  port: 6667
+  virtual-host: nuricanozturk-huecezyjzbrjjmxqqyxqjdqm
+  api-key: dmafvEHBVmmesVBudwtzZSbgCIBthBoRMyrARcRvaGFdOyssVqga
+  listener:
+    simple:
+      retry:
+        enabled: true
+        initial-interval: 3s
+        max-attempts: 6
+        max-interval: 10s
+        multiplier: 2
+logging:
+  level:
+    root: warn
