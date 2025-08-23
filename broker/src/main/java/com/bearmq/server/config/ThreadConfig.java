@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Configuration
 public class ThreadConfig {
-  @Bean(destroyMethod = "shutdown")
+  @Bean
   @Scope("prototype")
   @Primary
   public ExecutorService provideCachedThreadPool() {

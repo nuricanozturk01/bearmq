@@ -41,6 +41,7 @@ public class BrokerServer implements Closeable {
   public void run() {
     try {
       log.warn("Broker server started on port " + serverSocket.getLocalPort());
+
       while (true) {
         final var socket = serverSocket.accept();
         executorService.execute(() -> handleClient(socket));
@@ -52,29 +53,27 @@ public class BrokerServer implements Closeable {
   }
 
   private void handleClient(final Socket socket) {
-    try {
-      final DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+    try (final DataInputStream dataInputStream = new DataInputStream(socket.getInputStream())) {
       final int messageLength = dataInputStream.readInt();
-      System.out.println("Received message: " + messageLength);
+
       if (messageLength <= 0 || messageLength > 16 * 16 * 1024) {
         log.error("Invalid message length: " + messageLength);
       }
 
       final var bytes = new byte[messageLength];
-
       int offset = 0;
       int expectedIdx = 1;
-
       while (offset < messageLength) {
         int chunkIdx = dataInputStream.readInt();
-        log.debug("Received chunk: {}", chunkIdx);
-        System.out.println("Received chunk: " + chunkIdx);
+
         if (chunkIdx != expectedIdx) {
           throw new IOException("chunk order mismatch");
         }
 
         int chunkLen = Math.min(DEFAULT_CUNK_SIZE, messageLength - offset);
+
         dataInputStream.readFully(bytes, offset, chunkLen);
+
         offset += chunkLen;
         expectedIdx++;
       }
@@ -82,9 +81,8 @@ public class BrokerServer implements Closeable {
       final Map<String, Object> oboj = objectMapper.readValue(bytes, Map.class);
       final var decodedBody = Base64.getDecoder().decode(oboj.get("body").toString());
       oboj.put("body", decodedBody);
-      System.out.println(new String(bytes));
-      String json = new String(decodedBody, java.nio.charset.StandardCharsets.UTF_8);
-      System.out.println(json);
+
+
     } catch (final Exception e) {
       Thread.currentThread().interrupt();
       log.error("Error accepting connection", e);
