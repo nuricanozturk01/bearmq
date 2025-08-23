@@ -103,7 +103,7 @@ Build BearMQ from source and install dependencies:
       <repository>
         <id>repsy</id>
         <name>My Private Maven Repository on Repsy</name>
-        <url>https://repo.repsy.io/mvn/undefined/undefined</url>
+        <url>https://repo.repsy.io/mvn/nuricanozturk/bearmq-spring-client</url>
       </repository>
       .....
     </repositories>
