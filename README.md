@@ -310,7 +310,10 @@ public class MessageListener {
 
 ## Video
 
-<video src="media/bearmq.mp4" controls width="600"></video>
+[▶️ Watch Demo in Media folder](media/bearmq.mp4)
+
+
+[▶️ Watch on YouTube](https://www.youtube.com/watch?v=KRjMb-gj2uM)
 
 ---
 
