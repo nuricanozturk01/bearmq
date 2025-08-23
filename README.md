@@ -310,10 +310,9 @@ public class MessageListener {
 
 ## Video
 
-[▶️ Watch Demo in Media folder](media/bearmq.mp4)
+👉 Click image for watching video
 
-
-[▶️ Watch on YouTube](https://www.youtube.com/watch?v=KRjMb-gj2uM)
+[![BearMQ Intro](https://img.youtube.com/vi/KRjMb-gj2uM/0.jpg)](https://www.youtube.com/watch?v=KRjMb-gj2uM)
 
 ---
 
