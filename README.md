@@ -5,6 +5,8 @@
 
 <em>A lightweight, distributed message queue system for modern architectures</em>
 
+<em>**Hobby Project for fun. Not Ready Production :grinning:**</em>
+
 ![JSON](https://img.shields.io/badge/JSON-000000.svg?style=flat&logo=JSON&logoColor=white)
 ![Markdown](https://img.shields.io/badge/Markdown-000000.svg?style=flat&logo=Markdown&logoColor=white)
 ![Spring](https://img.shields.io/badge/Spring-000000.svg?style=flat&logo=Spring&logoColor=white)
