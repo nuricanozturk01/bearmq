@@ -1,8 +1,8 @@
 package com.bearmq.server.broker.runner;
 
+import com.bearmq.server.broker.dto.Message;
 import com.bearmq.server.broker.facade.BrokerServerFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
@@ -10,10 +10,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 @Component
@@ -22,24 +23,13 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor
 @SuppressWarnings("all")
 public class BrokerServer implements Closeable {
-  private static final int DEFAULT_CUNK_SIZE = 1024 * 4;
+  private static final int DEFAULT_CHUNK_SIZE = 1024 * 4;
   private static final int MAX_MESSAGE_SIZE = 16 * 16 * 1024;
 
   private final ServerSocket serverSocket;
   private final ExecutorService executorService;
   private final ObjectMapper objectMapper;
   private final BrokerServerFacade brokerFacade;
-
-  @PreDestroy
-  public void destroy() throws IOException {
-    serverSocket.close();
-    executorService.shutdown();
-  }
-
-  @Override
-  public void close() throws IOException {
-    serverSocket.close();
-  }
 
   public void run() {
     try {
@@ -64,8 +54,10 @@ public class BrokerServer implements Closeable {
       }
 
       final var bytes = new byte[messageLength];
+
       int offset = 0;
       int expectedIdx = 1;
+
       while (offset < messageLength) {
         int chunkIdx = dataInputStream.readInt();
 
@@ -73,7 +65,7 @@ public class BrokerServer implements Closeable {
           throw new IOException("chunk order mismatch");
         }
 
-        int chunkLen = Math.min(DEFAULT_CUNK_SIZE, messageLength - offset);
+        int chunkLen = Math.min(DEFAULT_CHUNK_SIZE, messageLength - offset);
 
         dataInputStream.readFully(bytes, offset, chunkLen);
 
@@ -81,13 +73,48 @@ public class BrokerServer implements Closeable {
         expectedIdx++;
       }
 
-      final Map<String, Object> mapObject = objectMapper.readValue(bytes, Map.class);
-      log.warn("Received data from client: {}", mapObject);
+      final Message message = objectMapper.readValue(bytes, Message.class);
 
-      brokerFacade.identifyOperationAndApply(mapObject);
+      final Optional<byte[]> body = brokerFacade.identifyOperationAndApply(message);
+
+      if (body.isPresent()) {
+        response(body.get(), dataInputStream, socket);
+      }
+
     } catch (final Exception e) {
       Thread.currentThread().interrupt();
       log.error("Error accepting connection", e);
     }
+  }
+
+  private void response(final byte[] body, final DataInputStream dis, final Socket socket) {
+    try (final DataOutputStream dos = new DataOutputStream(socket.getOutputStream())){
+      dos.writeInt(body.length);
+
+      int offset = 0;
+      int chunk = 0;
+
+      while (offset < body.length) {
+        int chunkSize = Math.min(DEFAULT_CHUNK_SIZE, body.length - offset);
+        dos.writeInt(++chunk);
+        dos.write(body, offset, chunkSize);
+        offset += chunkSize;
+      }
+
+      dos.flush();
+    } catch (final IOException e) {
+      Thread.currentThread().interrupt();
+      log.error("Error accepting connection", e);
+    }
+  }
+
+  public void loadCurrentQueues() {
+    brokerFacade.loadQueues();
+  }
+
+  @Override
+  public void close() throws IOException {
+    executorService.shutdown();
+    serverSocket.close();
   }
 }

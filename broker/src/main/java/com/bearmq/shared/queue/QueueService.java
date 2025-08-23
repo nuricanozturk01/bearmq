@@ -43,4 +43,8 @@ public class QueueService {
 
     return queueRepository.saveAll(queueObjects);
   }
+
+  public List<Queue> findAllByVhostId(String vhostId) {
+    return queueRepository.findAllByVhostId(vhostId);
+  }
 }

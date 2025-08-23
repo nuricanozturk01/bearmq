@@ -46,6 +46,7 @@ public class BrokerApplication implements ApplicationRunner {
     }
 
     persistSubscriptionPlans();
+    brokerServer.loadCurrentQueues();
   }
 
   private void persistSubscriptionPlans() {

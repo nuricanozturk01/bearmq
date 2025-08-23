@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 
 import static java.lang.String.format;
@@ -104,5 +105,10 @@ public class VirtualHostService {
           final String password) {
     return repository.findByTenantIdAndNameAndUsernameAndPassword(tenantId, vhost, username, password)
             .orElseThrow(() -> new RuntimeException("vhost is not found!"));
+  }
+
+  @Transactional(readOnly = true)
+  public List<VirtualHost> findAll() {
+    return repository.findAll();
   }
 }

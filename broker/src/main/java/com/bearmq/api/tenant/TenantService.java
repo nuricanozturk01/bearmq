@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TenantService {
   private static final int SALT_LENGTH = 16;
-  private static final int API_KEY_LENGTH = 52;
+  private static final int API_KEY_LENGTH = 44;
 
   private final TenantRepository tenantRepository;
   private final TenantConverter tenantConverter;

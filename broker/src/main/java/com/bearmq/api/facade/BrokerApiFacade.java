@@ -47,7 +47,7 @@ public class BrokerApiFacade {
       bindings = bindingService.createAll(vhost, exchanges, queues, request.bindings());
     }
 
-    brokerServerFacade.prepareAndUpQeueues(vhost, queues, bindings);
+    brokerServerFacade.prepareAndUpQueues(vhost, queues, bindings);
   }
 
   public VirtualHostInfo createVirtualHost(final TenantInfo tenantInfo) {

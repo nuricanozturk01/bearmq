@@ -77,4 +77,8 @@ public class BindingService {
       b.setDestinationExchangeId(destEx.getId());
     }
   }
+
+  public List<Binding> findAllByVhostId(String vhostId) {
+    return bindingRepository.findAllByVhostId(vhostId);
+  }
 }

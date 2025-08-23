@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Scope;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,5 +27,10 @@ public class BrokerServerConfig {
   @Primary
   public ExecutorService provideCachedThreadPool() {
     return Executors.newCachedThreadPool();
+  }
+
+  @Bean("thread.virtual")
+  public ExecutorService provideVirtualThreadExecutor() {
+    return Executors.newVirtualThreadPerTaskExecutor();
   }
 }
