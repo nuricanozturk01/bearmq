@@ -25,6 +25,7 @@
 - [Example Usage](#example-usage)
 - [Video](#video)
 - [License](#license)
+- [Support Me](#-support-my-work)
 
 ---
 
@@ -327,3 +328,13 @@ the [LICENSE](https://choosealicense.com/licenses/mit/) file.
 
 Special thanks to all contributors who have helped make BearMQ possible. This project builds upon the excellent work of
 the open-source community, particularly the Spring Framework and Chronicle Queue projects.
+
+---
+
+## ☕ Support My Work
+
+If you find my projects helpful or want to support my open-source contributions:
+
+<a href="https://www.buymeacoffee.com/canozturk3U" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 200px !important;" >
+</a>
