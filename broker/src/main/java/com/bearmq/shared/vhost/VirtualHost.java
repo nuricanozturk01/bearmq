@@ -2,9 +2,9 @@ package com.bearmq.shared.vhost;
 
 import com.bearmq.api.tenant.Tenant;
 import com.bearmq.shared.binding.Binding;
+import com.bearmq.shared.broker.Status;
 import com.bearmq.shared.exchange.Exchange;
 import com.bearmq.shared.queue.Queue;
-import com.bearmq.shared.broker.Status;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,6 +16,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,10 +26,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "virtual_host")
@@ -40,11 +39,9 @@ public class VirtualHost {
   @Column(nullable = false, unique = true, length = 26)
   private String id;
 
-  @Column
-  private String name;
+  @Column private String name;
 
-  @Column
-  private String description;
+  @Column private String description;
 
   @Column(nullable = false, length = 150, unique = true)
   private String username;
@@ -71,21 +68,36 @@ public class VirtualHost {
   @ColumnDefault("ACTIVE")
   private Status status;
 
-  @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "vhost",
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true)
   private Set<Queue> queues;
 
-  @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "vhost",
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true)
   private Set<Exchange> exchanges;
 
-  @OneToMany(mappedBy = "vhost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "vhost",
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true)
   private Set<Binding> bindings;
 
   @Column(nullable = false)
   private boolean deleted;
 
   @Override
-  public boolean equals(Object o) {
-    if (!(o instanceof VirtualHost that)) return false;
+  public boolean equals(final Object o) {
+    if (!(o instanceof VirtualHost that)) {
+      return false;
+    }
+
     return Objects.equals(id, that.id) && Objects.equals(name, that.name);
   }
 

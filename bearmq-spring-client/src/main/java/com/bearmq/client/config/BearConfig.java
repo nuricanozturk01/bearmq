@@ -1,11 +1,13 @@
 package com.bearmq.client.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import static com.bearmq.client.Names.CONFIG_BASE;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(CONFIG_BASE)
 public class BearConfig {
+  private static final int REST_PORT = 3333;
+
   private String username;
   private String password;
   private String host;
@@ -18,7 +20,7 @@ public class BearConfig {
     return apiKey;
   }
 
-  public void setApiKey(String apiKey) {
+  public void setApiKey(final String apiKey) {
     this.apiKey = apiKey;
   }
 
@@ -26,7 +28,7 @@ public class BearConfig {
     return username;
   }
 
-  public void setUsername(String username) {
+  public void setUsername(final String username) {
     this.username = username;
   }
 
@@ -34,7 +36,7 @@ public class BearConfig {
     return password;
   }
 
-  public void setPassword(String password) {
+  public void setPassword(final String password) {
     this.password = password;
   }
 
@@ -42,7 +44,7 @@ public class BearConfig {
     return host;
   }
 
-  public void setHost(String host) {
+  public void setHost(final String host) {
     this.host = host;
   }
 
@@ -50,7 +52,7 @@ public class BearConfig {
     return port;
   }
 
-  public void setPort(int port) {
+  public void setPort(final int port) {
     this.port = port;
   }
 
@@ -58,7 +60,7 @@ public class BearConfig {
     return virtualHost;
   }
 
-  public void setVirtualHost(String virtualHost) {
+  public void setVirtualHost(final String virtualHost) {
     this.virtualHost = virtualHost;
   }
 
@@ -66,7 +68,7 @@ public class BearConfig {
     return retry;
   }
 
-  public void setRetry(BearRetryConfig retry) {
+  public void setRetry(final BearRetryConfig retry) {
     this.retry = retry;
   }
 
@@ -74,9 +76,9 @@ public class BearConfig {
     if (host == null) {
       throw new IllegalStateException("host is null");
     } else if (host.contains("localhost") || host.contains("127.0.0.1") || host.contains("http")) {
-      return String.format("http://%s:%d", host, 3333);
-    }  else {
-      return String.format("https://%s:%d", host, 3333);
+      return String.format("http://%s:%d", host, REST_PORT);
+    } else {
+      return String.format("https://%s:%d", host, REST_PORT);
     }
   }
 }

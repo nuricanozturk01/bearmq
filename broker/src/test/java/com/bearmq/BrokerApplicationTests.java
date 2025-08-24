@@ -9,7 +9,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class BrokerApplicationTests {
 
   @Test
-  void contextLoads() {
-  }
-
+  void contextLoads() {}
 }

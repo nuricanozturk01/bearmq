@@ -1,21 +1,19 @@
 package com.bearmq.shared.exchange;
 
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
+
 import com.bearmq.api.broker.dto.ExchangeRequest;
 import com.bearmq.shared.broker.Status;
 import com.bearmq.shared.converter.BrokerConverter;
-import com.bearmq.shared.queue.Queue;
 import com.bearmq.shared.vhost.VirtualHost;
 import com.github.f4b6a3.ulid.UlidCreator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Locale.ROOT;
-import static org.apache.commons.lang3.RandomStringUtils.secure;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -26,20 +24,21 @@ public class ExchangeService {
   private final BrokerConverter brokerConverter;
   private final Random random;
 
-
   public List<Exchange> createAll(final VirtualHost vhost, final List<ExchangeRequest> exchanges) {
-    final var exchangeObjects = exchanges.stream()
-            .map(brokerConverter::toExchange)
-            .toList();
+    final var exchangeObjects = exchanges.stream().map(brokerConverter::toExchange).toList();
 
-    final Set<String> existingNames = exchangeRepository.findAllByVhostId(vhost.getId())
-            .stream().map(Exchange::getName).collect(Collectors.toSet());
+    final Set<String> existingNames =
+        exchangeRepository.findAllByVhostId(vhost.getId()).stream()
+            .map(Exchange::getName)
+            .collect(Collectors.toSet());
 
     for (final var exchange : exchangeObjects) {
       if (existingNames.contains(exchange.getName())) {
         continue;
       }
-      final String actualName = String.format("exchange-%s",
+      final String actualName =
+          String.format(
+              "exchange-%s",
               secure().next(random.nextInt(MIN_DIGITS, MAX_DIGITS), true, false).toLowerCase(ROOT));
 
       exchange.setId(UlidCreator.getUlid().toString());
@@ -48,10 +47,11 @@ public class ExchangeService {
       exchange.setStatus(Status.ACTIVE);
     }
 
-    return exchangeRepository.saveAll(exchangeObjects.stream().filter(q -> !existingNames.contains(q.getName())).toList());
+    return exchangeRepository.saveAll(
+        exchangeObjects.stream().filter(q -> !existingNames.contains(q.getName())).toList());
   }
 
-  public List<Exchange> findAllByVhostId(String id) {
+  public List<Exchange> findAllByVhostId(final String id) {
     return exchangeRepository.findListByVhostId(id);
   }
 }

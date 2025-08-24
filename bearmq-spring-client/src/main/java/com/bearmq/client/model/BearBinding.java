@@ -15,9 +15,12 @@ public final class BearBinding {
   private final boolean noWait;
   private final BearQueue lazyQueue;
 
-  public enum DestinationType {QUEUE, EXCHANGE}
+  public enum DestinationType {
+    QUEUE,
+    EXCHANGE
+  }
 
-  private BearBinding(Builder b) {
+  private BearBinding(final Builder b) {
     this.exchange = Objects.requireNonNull(b.exchange, "exchange");
     this.destination = b.destination;
     this.destinationType = Objects.requireNonNull(b.destinationType, "destinationType");
@@ -40,7 +43,10 @@ public final class BearBinding {
   }
 
   public String getRoutingKey() {
-    if (routingKey == null && lazyQueue != null) return lazyQueue.name();
+    if (routingKey == null && lazyQueue != null) {
+      return lazyQueue.name();
+    }
+
     return routingKey;
   }
 
@@ -65,42 +71,42 @@ public final class BearBinding {
     private boolean noWait = false;
     private BearQueue lazyQueue;
 
-    public Builder exchange(String exchange) {
+    public Builder exchange(final String exchange) {
       this.exchange = exchange;
       return this;
     }
 
-    public Builder destination(String destination) {
+    public Builder destination(final String destination) {
       this.destination = destination;
       return this;
     }
 
-    public Builder destinationType(DestinationType type) {
+    public Builder destinationType(final DestinationType type) {
       this.destinationType = type;
       return this;
     }
 
-    public Builder routingKey(String key) {
+    public Builder routingKey(final String key) {
       this.routingKey = key;
       return this;
     }
 
-    public Builder argument(String k, Object v) {
+    public Builder argument(final String k, final Object v) {
       this.arguments.put(k, v);
       return this;
     }
 
-    public Builder arguments(Map<String, Object> args) {
+    public Builder arguments(final Map<String, Object> args) {
       this.arguments = args;
       return this;
     }
 
-    public Builder noWait(boolean nw) {
+    public Builder noWait(final boolean nw) {
       this.noWait = nw;
       return this;
     }
 
-    public Builder lazyQueue(BearQueue q) {
+    public Builder lazyQueue(final BearQueue q) {
       this.lazyQueue = q;
       return this;
     }

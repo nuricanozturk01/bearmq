@@ -3,10 +3,9 @@ package com.bearmq.api.broker.dto;
 import java.util.Map;
 
 public record ExchangeRequest(
-        String name,
-        String type,
-        boolean durable,
-        boolean internal,
-        boolean delayed,
-        Map<String, Object> args) {
-}
+    String name,
+    String type,
+    boolean durable,
+    boolean internal,
+    boolean delayed,
+    Map<String, Object> args) {}

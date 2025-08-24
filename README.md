@@ -17,16 +17,16 @@
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-- [Features](#features)
-- [Configuration](#configuration)
-- [Roadmap](#roadmap)
+- [Overview](#-overview)
+- [Getting Started](#-getting-started)
+    - [Prerequisites](#-prerequisites)
+    - [Installation](#-installation)
+- [Features](#-features)
+- [Configuration](#-configuration)
+- [Roadmap](#-roadmap)
 - [Example Usage](#example-usage)
 - [Video](#video)
-- [License](#license)
+- [License](#-license)
 - [Support Me](#-support-my-work)
 
 ---

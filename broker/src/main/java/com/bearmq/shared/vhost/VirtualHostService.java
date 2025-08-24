@@ -1,29 +1,28 @@
 package com.bearmq.shared.vhost;
 
+import static java.lang.String.format;
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
+
 import com.bearmq.api.tenant.Tenant;
 import com.bearmq.api.tenant.TenantRepository;
 import com.bearmq.api.tenant.dto.TenantInfo;
+import com.bearmq.shared.broker.Status;
 import com.bearmq.shared.converter.BrokerConverter;
 import com.bearmq.shared.vhost.dto.VirtualHostInfo;
-import com.bearmq.shared.broker.Status;
 import com.github.f4b6a3.ulid.UlidCreator;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-import java.util.Random;
-
-import static java.lang.String.format;
-import static java.util.Locale.ROOT;
-import static org.apache.commons.lang3.RandomStringUtils.secure;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,23 +40,26 @@ public class VirtualHostService {
 
   @Transactional
   public VirtualHostInfo create(final TenantInfo tenantInfo) {
-    final Tenant tenant = tenantRepository.findByUsername(tenantInfo.username())
+    final Tenant tenant =
+        tenantRepository
+            .findByUsername(tenantInfo.username())
             .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
 
     final int randomDigit = random.nextInt(MIN_DIGITS, MAX_DIGITS);
 
-    final var vhostDomain = String.format("%s.%s",
-            secure().next(randomDigit, true, false).toLowerCase(ROOT), domain);
+    final var vhostDomain =
+        String.format("%s.%s", secure().next(randomDigit, true, false).toLowerCase(ROOT), domain);
 
-    final String username = secure()
-            .next(randomDigit, true, false)
-            .toLowerCase(ROOT);
+    final String username = secure().next(randomDigit, true, false).toLowerCase(ROOT);
 
     final String password = secure().next(randomDigit, true, false);
-    final String encodedPassword = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
+    final String encodedPassword =
+        Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
 
-    final String name = format("%s-%s", tenantInfo.username(),
-            secure().next(randomDigit, true, false).toLowerCase(ROOT));
+    final String name =
+        format(
+            "%s-%s",
+            tenantInfo.username(), secure().next(randomDigit, true, false).toLowerCase(ROOT));
 
     final var vhostObj = new VirtualHost();
 
@@ -77,35 +79,35 @@ public class VirtualHostService {
 
   @Transactional
   public void delete(final TenantInfo tenantInfo, final String vhostId) {
-    final var vhost = repository.findByTenantIdAndId(tenantInfo.id(), vhostId)
+    final var vhost =
+        repository
+            .findByTenantIdAndId(tenantInfo.id(), vhostId)
             .orElseThrow(() -> new RuntimeException("vhost is not found!"));
     repository.delete(vhost);
   }
 
   @Transactional(readOnly = true)
-  public Page<VirtualHostInfo> findAllByTenantId(String id, @NotNull Pageable pageable) {
-    final var vhosts = repository.findAllByTenantId(id, pageable)
-            .stream()
-            .map(converter::convert)
-            .toList();
+  public Page<VirtualHostInfo> findAllByTenantId(
+      final String id, final @NotNull Pageable pageable) {
+    final var vhosts =
+        repository.findAllByTenantId(id, pageable).stream().map(converter::convert).toList();
 
     return new PageImpl<>(vhosts, pageable, vhosts.size());
   }
 
   @Transactional(readOnly = true)
-  public VirtualHost findByTenantIdAndVhostName(String id, String vhost) {
-    return repository.findByTenantIdAndName(id, vhost)
-            .orElseThrow(() -> new RuntimeException("vhost is not found!"));
+  public VirtualHost findByTenantIdAndVhostName(final String id, final String vhost) {
+    return repository
+        .findByTenantIdAndName(id, vhost)
+        .orElseThrow(() -> new RuntimeException("vhost is not found!"));
   }
 
   @Transactional(readOnly = true)
   public VirtualHost findByVhostInfo(
-          final String tenantId,
-          final String vhost,
-          final String username,
-          final String password) {
-    return repository.findByTenantIdAndNameAndUsernameAndPassword(tenantId, vhost, username, password)
-            .orElseThrow(() -> new RuntimeException("vhost is not found!"));
+      final String tenantId, final String vhost, final String username, final String password) {
+    return repository
+        .findByTenantIdAndNameAndUsernameAndPassword(tenantId, vhost, username, password)
+        .orElseThrow(() -> new RuntimeException("vhost is not found!"));
   }
 
   @Transactional(readOnly = true)

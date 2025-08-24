@@ -27,16 +27,19 @@ public class TenantService {
       return null;
     }
 
-    final var plan = subscriptionPlanRepository.findByName((SubscriptionPlans.FREE))
+    final var plan =
+        subscriptionPlanRepository
+            .findByName((SubscriptionPlans.FREE))
             .orElseThrow(() -> new RuntimeException("Subscription Plan Not Found"));
 
     final var salt = RandomStringUtils.secure().nextAlphanumeric(SALT_LENGTH);
     final var password = DigestUtils.sha256Hex(salt + request.password());
 
-    final var apiKey = String.format("bearmqt-%s",
-            RandomStringUtils.secure().next(API_KEY_LENGTH, true, false));
+    final var apiKey =
+        String.format("bearmqt-%s", RandomStringUtils.secure().next(API_KEY_LENGTH, true, false));
 
-    final Tenant tenantObj = Tenant.builder()
+    final Tenant tenantObj =
+        Tenant.builder()
             .id(UlidCreator.getUlid().toString())
             .fullName(request.fullName())
             .email(request.email())
@@ -54,15 +57,18 @@ public class TenantService {
   }
 
   public TenantAuthenticateInfo findByUsername(final String username) {
-    final Tenant tenant = tenantRepository.findByUsername(username)
+    final Tenant tenant =
+        tenantRepository
+            .findByUsername(username)
             .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
 
     return tenantConverter.toTenantAuthenticateInfo(tenant);
   }
 
   public TenantInfo findByApiKey(final String apiKey) {
-    return tenantRepository.findByApiKey(apiKey)
-            .map(tenantConverter::toTenantInfo)
-            .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
+    return tenantRepository
+        .findByApiKey(apiKey)
+        .map(tenantConverter::toTenantInfo)
+        .orElseThrow(() -> new RuntimeException("Tenant Not Found"));
   }
 }

@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,10 +24,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.Instant;
-import java.util.Objects;
-
 
 @Entity
 @Table(name = "exchange")
@@ -94,8 +92,11 @@ public final class Exchange {
   private boolean deleted;
 
   @Override
-  public boolean equals(Object o) {
-    if (!(o instanceof Exchange e)) return false;
+  public boolean equals(final Object o) {
+    if (!(o instanceof Exchange e)) {
+      return false;
+    }
+
     return Objects.equals(id, e.id) && Objects.equals(actualName, e.actualName);
   }
 

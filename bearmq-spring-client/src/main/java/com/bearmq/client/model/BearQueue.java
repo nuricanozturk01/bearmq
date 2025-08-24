@@ -13,7 +13,7 @@ public final class BearQueue {
   private final boolean autoDelete;
   private final Map<String, Object> arguments;
 
-  private BearQueue(Builder builder) {
+  private BearQueue(final Builder builder) {
     this.name = Objects.requireNonNull(builder.name, "name must not be null");
     this.actualName = builder.actualName;
     this.durable = builder.durable;
@@ -54,37 +54,37 @@ public final class BearQueue {
     private boolean autoDelete = false;
     private Map<String, Object> arguments = new HashMap<>();
 
-    public Builder name(String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
 
-    public Builder actualName(String actualName) {
+    public Builder actualName(final String actualName) {
       this.actualName = actualName;
       return this;
     }
 
-    public Builder durable(boolean durable) {
+    public Builder durable(final boolean durable) {
       this.durable = durable;
       return this;
     }
 
-    public Builder exclusive(boolean exclusive) {
+    public Builder exclusive(final boolean exclusive) {
       this.exclusive = exclusive;
       return this;
     }
 
-    public Builder autoDelete(boolean autoDelete) {
+    public Builder autoDelete(final boolean autoDelete) {
       this.autoDelete = autoDelete;
       return this;
     }
 
-    public Builder argument(String key, Object value) {
+    public Builder argument(final String key, final Object value) {
       this.arguments.put(key, value);
       return this;
     }
 
-    public Builder arguments(Map<String, Object> arguments) {
+    public Builder arguments(final Map<String, Object> arguments) {
       this.arguments = arguments;
       return this;
     }

@@ -15,7 +15,7 @@ public class BearRetryConfig {
     return enabled;
   }
 
-  public void setEnabled(boolean enabled) {
+  public void setEnabled(final boolean enabled) {
     this.enabled = enabled;
   }
 
@@ -23,7 +23,7 @@ public class BearRetryConfig {
     return initialInterval;
   }
 
-  public void setInitialInterval(String initialInterval) {
+  public void setInitialInterval(final String initialInterval) {
     this.initialInterval = initialInterval;
   }
 
@@ -31,7 +31,7 @@ public class BearRetryConfig {
     return maxInterval;
   }
 
-  public void setMaxInterval(String maxInterval) {
+  public void setMaxInterval(final String maxInterval) {
     this.maxInterval = maxInterval;
   }
 
@@ -39,7 +39,7 @@ public class BearRetryConfig {
     return maxAttempts;
   }
 
-  public void setMaxAttempts(int maxAttempts) {
+  public void setMaxAttempts(final int maxAttempts) {
     this.maxAttempts = maxAttempts;
   }
 
@@ -47,7 +47,7 @@ public class BearRetryConfig {
     return multiplier;
   }
 
-  public void setMultiplier(int multiplier) {
+  public void setMultiplier(final int multiplier) {
     this.multiplier = multiplier;
   }
 }

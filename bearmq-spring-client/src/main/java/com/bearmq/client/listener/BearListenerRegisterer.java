@@ -1,21 +1,21 @@
 package com.bearmq.client.listener;
 
-import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 @Component
 public class BearListenerRegisterer implements SmartInitializingSingleton {
   private final ApplicationContext applicationContext;
   private final BearerListenerContainer bearerListenerContainer;
 
-  public BearListenerRegisterer(final ApplicationContext context, final BearerListenerContainer container) {
+  public BearListenerRegisterer(
+      final ApplicationContext context, final BearerListenerContainer container) {
     this.applicationContext = context;
     this.bearerListenerContainer = container;
   }

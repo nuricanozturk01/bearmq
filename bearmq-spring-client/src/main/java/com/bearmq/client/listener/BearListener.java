@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 @SuppressWarnings("unused")
 public @interface BearListener {
   String[] queues() default {};
+
   long delay() default 200;
 }

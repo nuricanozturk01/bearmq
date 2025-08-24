@@ -1,19 +1,30 @@
 package com.bearmq.shared.binding;
 
+import com.bearmq.shared.broker.Status;
 import com.bearmq.shared.exchange.Exchange;
 import com.bearmq.shared.queue.Queue;
-import com.bearmq.shared.broker.Status;
 import com.bearmq.shared.vhost.VirtualHost;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.Instant;
-import java.util.Objects;
 
 @Entity
 @Table(name = "binding")
@@ -74,22 +85,31 @@ public final class Binding {
   private VirtualHost vhostRef;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "source_exchange_id", referencedColumnName = "id",
-          insertable = false, updatable = false)
+  @JoinColumn(
+      name = "source_exchange_id",
+      referencedColumnName = "id",
+      insertable = false,
+      updatable = false)
   private Exchange sourceExchangeRef;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "destination_queue_id", referencedColumnName = "id",
-          insertable = false, updatable = false)
+  @JoinColumn(
+      name = "destination_queue_id",
+      referencedColumnName = "id",
+      insertable = false,
+      updatable = false)
   private Queue destinationQueueRef;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "destination_exchange_id", referencedColumnName = "id",
-          insertable = false, updatable = false)
+  @JoinColumn(
+      name = "destination_exchange_id",
+      referencedColumnName = "id",
+      insertable = false,
+      updatable = false)
   private Exchange destinationExchangeRef;
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (!(o instanceof Binding b)) {
       return false;
     }

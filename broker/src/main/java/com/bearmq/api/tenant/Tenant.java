@@ -11,6 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "tenant")
@@ -73,12 +72,14 @@ public class Tenant {
   private String apiKey;
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (!(o instanceof Tenant tenant)) {
       return false;
     }
 
-    return Objects.equals(id, tenant.id) && Objects.equals(username, tenant.username) && Objects.equals(email, tenant.email);
+    return Objects.equals(id, tenant.id)
+        && Objects.equals(username, tenant.username)
+        && Objects.equals(email, tenant.email);
   }
 
   @Override

@@ -1,10 +1,11 @@
 package com.bearmq.api.auth;
 
+import java.util.Base64;
+import lombok.experimental.UtilityClass;
 import org.springframework.data.util.Pair;
 
-import java.util.Base64;
-
-public final class AuthUtils {
+@UtilityClass
+public class AuthUtils {
   public static Pair<String, String> extractBasicCredentials(final String basicAuth) {
     final String basic = basicAuth.substring("Basic ".length());
     final var credentials = new String(Base64.getDecoder().decode(basic));
@@ -15,10 +16,7 @@ public final class AuthUtils {
     return Pair.of(username, password);
   }
 
-  private AuthUtils() {
-  }
-
-  public static String checkBearerTokenValidityAndGet(String bearerToken) {
+  public static String checkBearerTokenValidityAndGet(final String bearerToken) {
     if (bearerToken == null || bearerToken.isEmpty()) {
       throw new NullPointerException("bearerToken is null");
     }

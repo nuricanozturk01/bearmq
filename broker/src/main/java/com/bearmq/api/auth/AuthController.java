@@ -18,15 +18,12 @@ public class AuthController {
   private final AuthComponent authComponent;
   private final TenantService tenantService;
 
-
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> register(@RequestBody final RegisterRequest registerRequest) {
     final var tenantInfo = tenantService.create(registerRequest);
 
-    return ResponseEntity.ok(AuthResponse.builder()
-            .token("token123")
-            .refreshToken("refreshToken123")
-            .build());
+    return ResponseEntity.ok(
+        AuthResponse.builder().token("token123").refreshToken("refreshToken123").build());
   }
 
   @PostMapping("/login")

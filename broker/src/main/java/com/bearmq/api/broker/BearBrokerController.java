@@ -2,9 +2,9 @@ package com.bearmq.api.broker;
 
 import com.bearmq.api.auth.AuthComponent;
 import com.bearmq.api.auth.AuthUtils;
+import com.bearmq.api.broker.dto.BrokerRequest;
 import com.bearmq.api.facade.BrokerApiFacade;
 import com.bearmq.api.tenant.dto.TenantInfo;
-import com.bearmq.api.broker.dto.BrokerRequest;
 import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,8 @@ public class BearBrokerController {
 
   @PostMapping
   public ResponseEntity<Boolean> create(
-          @RequestBody final BrokerRequest brokerRequest,
-          @RequestHeader(API_KEY_HEADER) final String apiKey) {
+      @RequestBody final BrokerRequest brokerRequest,
+      @RequestHeader(API_KEY_HEADER) final String apiKey) {
     final TenantInfo tenantInfo = authComponent.authorize(apiKey);
 
     brokerApiFacade.createBrokerObjects(brokerRequest, tenantInfo);
@@ -42,11 +42,10 @@ public class BearBrokerController {
     return ResponseEntity.ok(true);
   }
 
-
   @PostMapping("/vhost")
   public ResponseEntity<VirtualHostInfo> createVhost(
-          @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
-          @RequestHeader(API_KEY_HEADER) final String apiKey) {
+      @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
+      @RequestHeader(API_KEY_HEADER) final String apiKey) {
     final String token = AuthUtils.checkBearerTokenValidityAndGet(bearerToken);
 
     final TenantInfo tenantInfo = authComponent.authorize(apiKey, token);
@@ -58,9 +57,9 @@ public class BearBrokerController {
 
   @DeleteMapping("/vhost/{vhostId}")
   public ResponseEntity<?> deleteVhost(
-          @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
-          @RequestHeader(API_KEY_HEADER) final String apiKey,
-          @PathVariable final String vhostId) {
+      @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
+      @RequestHeader(API_KEY_HEADER) final String apiKey,
+      @PathVariable final String vhostId) {
     final String token = AuthUtils.checkBearerTokenValidityAndGet(bearerToken);
 
     final TenantInfo tenantInfo = authComponent.authorize(apiKey, token);
@@ -72,10 +71,10 @@ public class BearBrokerController {
 
   @GetMapping("/vhost/{userId}")
   public ResponseEntity<Page<VirtualHostInfo>> getAllByUserId(
-          @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
-          @RequestHeader(API_KEY_HEADER) final String apiKey,
-          @PathVariable final String userId,
-          @PageableDefault final @NotNull Pageable pageable) {
+      @RequestHeader(HttpHeaders.AUTHORIZATION) final String bearerToken,
+      @RequestHeader(API_KEY_HEADER) final String apiKey,
+      @PathVariable final String userId,
+      @PageableDefault final @NotNull Pageable pageable) {
     final String token = AuthUtils.checkBearerTokenValidityAndGet(bearerToken);
 
     final TenantInfo tenantInfo = authComponent.authorize(apiKey, token);

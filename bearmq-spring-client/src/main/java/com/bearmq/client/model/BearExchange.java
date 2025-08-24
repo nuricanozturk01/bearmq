@@ -6,7 +6,12 @@ import java.util.Objects;
 
 @SuppressWarnings("unused")
 public final class BearExchange {
-  public enum Type {DIRECT, FANOUT, TOPIC, HEADERS}
+  public enum Type {
+    DIRECT,
+    FANOUT,
+    TOPIC,
+    HEADERS
+  }
 
   private final String name;
   private final String actualName;
@@ -17,7 +22,7 @@ public final class BearExchange {
   private final boolean delayed;
   private final Map<String, Object> arguments;
 
-  private BearExchange(Builder b) {
+  private BearExchange(final Builder b) {
     this.name = Objects.requireNonNull(b.name, "name");
     this.actualName = b.actualName;
     this.type = Objects.requireNonNull(b.type, "type");
@@ -70,47 +75,47 @@ public final class BearExchange {
     private boolean delayed = false;
     private Map<String, Object> arguments = new HashMap<>();
 
-    public Builder name(String v) {
+    public Builder name(final String v) {
       this.name = v;
       return this;
     }
 
-    public Builder actualName(String v) {
+    public Builder actualName(final String v) {
       this.actualName = v;
       return this;
     }
 
-    public Builder type(Type v) {
+    public Builder type(final Type v) {
       this.type = v;
       return this;
     }
 
-    public Builder durable(boolean v) {
+    public Builder durable(final boolean v) {
       this.durable = v;
       return this;
     }
 
-    public Builder autoDelete(boolean v) {
+    public Builder autoDelete(final boolean v) {
       this.autoDelete = v;
       return this;
     }
 
-    public Builder internal(boolean v) {
+    public Builder internal(final boolean v) {
       this.internal = v;
       return this;
     }
 
-    public Builder delayed(boolean v) {
+    public Builder delayed(final boolean v) {
       this.delayed = v;
       return this;
     }
 
-    public Builder argument(String k, Object v) {
+    public Builder argument(final String k, final Object v) {
       this.arguments.put(k, v);
       return this;
     }
 
-    public Builder arguments(Map<String, Object> m) {
+    public Builder arguments(final Map<String, Object> m) {
       this.arguments = m;
       return this;
     }

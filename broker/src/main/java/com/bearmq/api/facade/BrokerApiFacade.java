@@ -1,23 +1,20 @@
 package com.bearmq.api.facade;
 
-import com.bearmq.api.tenant.dto.TenantInfo;
 import com.bearmq.api.broker.dto.BrokerRequest;
+import com.bearmq.api.tenant.dto.TenantInfo;
 import com.bearmq.server.broker.facade.BrokerServerFacade;
 import com.bearmq.shared.binding.Binding;
-import com.bearmq.shared.vhost.dto.VirtualHostInfo;
 import com.bearmq.shared.binding.BindingService;
-import com.bearmq.shared.exchange.Exchange;
 import com.bearmq.shared.exchange.ExchangeService;
-import com.bearmq.shared.queue.Queue;
 import com.bearmq.shared.queue.QueueService;
 import com.bearmq.shared.vhost.VirtualHostService;
+import com.bearmq.shared.vhost.dto.VirtualHostInfo;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +27,8 @@ public class BrokerApiFacade {
 
   @Transactional
   public void createBrokerObjects(final BrokerRequest request, final TenantInfo tenantInfo) {
-    final var vhost = virtualHostService.findByTenantIdAndVhostName(tenantInfo.id(), request.vhost());
+    final var vhost =
+        virtualHostService.findByTenantIdAndVhostName(tenantInfo.id(), request.vhost());
 
     if (!request.queues().isEmpty()) {
       queueService.createAll(vhost, request.queues());
@@ -58,9 +56,10 @@ public class BrokerApiFacade {
     virtualHostService.delete(tenantInfo, vhostId);
   }
 
-  public Page<VirtualHostInfo> findAllByUserId(final TenantInfo tenantInfo, final Pageable pageable) {
+  public Page<VirtualHostInfo> findAllByUserId(
+      final TenantInfo tenantInfo, final Pageable pageable) {
     return virtualHostService.findAllByTenantId(tenantInfo.id(), pageable);
   }
 
-  //...
+  // ...
 }

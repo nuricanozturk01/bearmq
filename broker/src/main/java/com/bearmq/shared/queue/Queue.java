@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,9 +23,6 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
-
-import java.time.Instant;
-import java.util.Objects;
 
 @Entity
 @Table(name = "queue")
@@ -93,7 +92,7 @@ public final class Queue {
   private boolean deleted;
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (!(o instanceof Queue queue)) {
       return false;
     }

@@ -4,10 +4,10 @@ import com.bearmq.api.tenant.Tenant;
 import com.bearmq.api.tenant.dto.TenantAuthenticateInfo;
 import com.bearmq.api.tenant.dto.TenantInfo;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TenantConverter {
   TenantInfo toTenantInfo(Tenant tenant);
+
   TenantAuthenticateInfo toTenantAuthenticateInfo(Tenant tenant);
 }

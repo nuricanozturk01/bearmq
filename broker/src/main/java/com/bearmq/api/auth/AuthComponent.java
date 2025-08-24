@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @RequiredArgsConstructor
 public class AuthComponent {
@@ -29,14 +28,11 @@ public class AuthComponent {
       throw new RuntimeException("invalid username or password");
     }
 
-    return AuthResponse.builder()
-            .token("token123")
-            .refreshToken("refreshToken123")
-            .build();
+    return AuthResponse.builder().token("token123").refreshToken("refreshToken123").build();
   }
 
   // Sample code. We need skip auth parts for accelerate development
-  public TenantInfo authorize(final String apiKey, String token) {
+  public TenantInfo authorize(final String apiKey, final String token) {
     // extract username in token.
     return tenantService.findByApiKey(apiKey);
   }

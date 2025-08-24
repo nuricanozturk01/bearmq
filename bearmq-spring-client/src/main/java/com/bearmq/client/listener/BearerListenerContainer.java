@@ -1,11 +1,9 @@
 package com.bearmq.client.listener;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import com.bearmq.client.BearMessagingTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -16,11 +14,19 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class BearerListenerContainer implements Closeable {
+  public static final byte SPACE = 0x20;
+  public static final byte HORIZONTAL_TAB = 0x09;
+  public static final byte LINE_FEED = 0x0A;
+  public static final byte CARRIAGE_RETURN = 0x0D;
+  private static final int DELAY_S = 0;
+  private static final int PERIOD = 500;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(BearerListenerContainer.class);
   private static final int SCHEDULED_THREAD_POOL_SIZE = 4;
 
@@ -29,7 +35,8 @@ public class BearerListenerContainer implements Closeable {
   private final ScheduledExecutorService executor;
   private final Map<String, List<Handler>> handlersByQueue;
 
-  public BearerListenerContainer(final ObjectMapper objectMapper, final BearMessagingTemplate template) {
+  public BearerListenerContainer(
+      final ObjectMapper objectMapper, final BearMessagingTemplate template) {
     this.objectMapper = objectMapper;
     this.template = template;
     this.handlersByQueue = new ConcurrentHashMap<>();
@@ -45,14 +52,16 @@ public class BearerListenerContainer implements Closeable {
       final String key = entry.getKey();
       final List<Handler> handlers = entry.getValue();
 
-      executor.scheduleWithFixedDelay(() -> run(key, handlers), 0, 500, MILLISECONDS);
+      executor.scheduleWithFixedDelay(() -> run(key, handlers), DELAY_S, PERIOD, MILLISECONDS);
     }
   }
 
   private void run(final String queue, final List<Handler> handlers) {
     try {
       final Optional<byte[]> bytesOpt = template.receive(queue);
-      if (bytesOpt.isEmpty()) return;
+      if (bytesOpt.isEmpty()) {
+        return;
+      }
 
       final byte[] body = bytesOpt.get();
 
@@ -69,7 +78,9 @@ public class BearerListenerContainer implements Closeable {
           final Object arg;
           if (parameterType == byte[].class) {
             arg = body;
-          } else if (parameterType == String.class || parameterType == CharSequence.class || parameterType == Object.class) {
+          } else if (parameterType == String.class
+              || parameterType == CharSequence.class
+              || parameterType == Object.class) {
             arg = new String(body, StandardCharsets.UTF_8);
           } else {
             if (!looksLikeJson(body)) {
@@ -81,24 +92,33 @@ public class BearerListenerContainer implements Closeable {
           method.invoke(handler.bean(), arg);
         } catch (com.fasterxml.jackson.core.JsonProcessingException ignored) {
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
           LOGGER.warn("Listener invoke failed for {}: {}", queue, ex.toString());
         }
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       LOGGER.warn("Listener invoke failed for {}: {}", queue, e.toString());
     }
   }
 
-  private boolean looksLikeJson(byte[] body) {
-    int i = 0, n = body.length;
+  private boolean looksLikeJson(final byte[] body) {
+    int i = 0;
+    final int n = body.length;
+
     while (i < n) {
-      byte b = body[i];
-      if (b == 0x20 || b == 0x09 || b == 0x0A || b == 0x0D) {
+      final byte b = body[i];
+      if (b == SPACE || b == HORIZONTAL_TAB || b == LINE_FEED || b == CARRIAGE_RETURN) {
         i++;
         continue;
       }
-      return b == '{' || b == '[' || b == '"' || b == '-' || (b >= '0' && b <= '9') || b == 't' || b == 'f' || b == 'n';
+      return b == '{'
+          || b == '['
+          || b == '"'
+          || b == '-'
+          || (b >= '0' && b <= '9')
+          || b == 't'
+          || b == 'f'
+          || b == 'n';
     }
     return false;
   }

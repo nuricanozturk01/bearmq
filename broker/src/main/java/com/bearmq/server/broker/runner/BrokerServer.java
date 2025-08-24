@@ -3,11 +3,6 @@ package com.bearmq.server.broker.runner;
 import com.bearmq.server.broker.dto.Message;
 import com.bearmq.server.broker.facade.BrokerServerFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,6 +11,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
@@ -88,7 +87,7 @@ public class BrokerServer implements Closeable {
   }
 
   private void response(final byte[] body, final DataInputStream dis, final Socket socket) {
-    try (final DataOutputStream dos = new DataOutputStream(socket.getOutputStream())){
+    try (final DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
       dos.writeInt(body.length);
 
       int offset = 0;
