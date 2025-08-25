@@ -183,7 +183,8 @@ curl --location 'http://localhost:3333/api/auth/register' \
     "full_name": "nuri",
     "username": "nuricanozturk",
     "email": "canozzturk309@gmail.com",
-    "password": "Test123"
+    "password": "Test123",
+    "api_key": "bearmqt-........"
 }'
 ```
 
