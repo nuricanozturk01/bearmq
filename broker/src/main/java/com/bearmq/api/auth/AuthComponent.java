@@ -28,7 +28,11 @@ public class AuthComponent {
       throw new RuntimeException("invalid username or password");
     }
 
-    return AuthResponse.builder().token("token123").refreshToken("refreshToken123").build();
+    return AuthResponse.builder()
+        .token("token123")
+        .refreshToken("refreshToken123")
+        .apiKey(user.apiKey())
+        .build();
   }
 
   // Sample code. We need skip auth parts for accelerate development

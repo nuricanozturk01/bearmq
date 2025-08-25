@@ -23,7 +23,11 @@ public class AuthController {
     final var tenantInfo = tenantService.create(registerRequest);
 
     return ResponseEntity.ok(
-        AuthResponse.builder().token("token123").refreshToken("refreshToken123").build());
+        AuthResponse.builder()
+            .token("token123")
+            .refreshToken("refreshToken123")
+            .apiKey(tenantInfo.apiKey())
+            .build());
   }
 
   @PostMapping("/login")

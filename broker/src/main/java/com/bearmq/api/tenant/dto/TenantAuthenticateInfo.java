@@ -9,4 +9,5 @@ public record TenantAuthenticateInfo(
     String username,
     String password,
     String salt,
+    String apiKey,
     TenantStatus status) {}
