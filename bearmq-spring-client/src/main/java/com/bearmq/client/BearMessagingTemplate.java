@@ -4,6 +4,7 @@ import com.bearmq.client.config.BearConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Base64;
@@ -132,6 +133,8 @@ public class BearMessagingTemplate implements BearTemplate {
       sendBytes(dos, bytes);
 
       return readChunkedResponse(dis);
+    } catch (final EOFException ignored) {
+      return Optional.empty();
     } catch (final IOException e) {
       throw new BearMQException("request failed", e);
     }

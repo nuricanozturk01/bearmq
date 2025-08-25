@@ -5,12 +5,12 @@ app:
   queue: queueX
 
 bearmq:
-  username: sacrfazeuahqkjkxtupeccwf
-  password: IYsHoguYbZEMGKKjtfEJXqAs
+  username: gkxockzmeyjhuoodczbyriogw
+  password: hZyrEkooaaHamNMWuKGHARNPN
   host: localhost
   port: 6667
-  virtual-host: nuricanozturk-huecezyjzbrjjmxqqyxqjdqm
-  api-key: dmafvEHBVmmesVBudwtzZSbgCIBthBoRMyrARcRvaGFdOyssVqga
+  virtual-host: nuricanozturk-jsquewyboyhlfoobdiqltqber
+  api-key: bearmqt-vRvkJYiEtgYWHYxwZdzAcRFmxNTrpgwRpNRniExYcaof
   listener:
     simple:
       retry:
