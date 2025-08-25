@@ -25,6 +25,7 @@
 - [Configuration](#-configuration)
 - [Roadmap](#-roadmap)
 - [Example Usage](#example-usage)
+- [Demo Architecture](#demo-architecture)
 - [Video](#video)
 - [License](#-license)
 - [Support Me](#-support-my-work)
