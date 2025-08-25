@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Message {
   private Auth auth;
-  private String operation;
+  private BearOperation operation;
   private String queue;
   private String exchange;
   private byte[] body;

@@ -32,8 +32,6 @@ public class BrokerApplication implements ApplicationRunner {
     brokerThread.setDaemon(false);
     brokerThread.start();
 
-    brokerServer.loadCurrentQueues();
-
     if (isMetricEnabled && metricServer.isPresent()) {
       final Thread metricsThread =
           new Thread(metricServer.get()::run, Constant.METRICS_THREAD_NAME);

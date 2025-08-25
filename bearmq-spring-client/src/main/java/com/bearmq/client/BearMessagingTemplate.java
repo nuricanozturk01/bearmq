@@ -75,7 +75,7 @@ public class BearMessagingTemplate implements BearTemplate {
   public void send(final String routingKey, final Message message) throws BearMQException {
     final Map<String, Object> frame =
         Map.of(
-            "operation", "enqueue", "queue", routingKey, "auth", getAuth(), "body", message.body());
+            "operation", "ENQUEUE", "queue", routingKey, "auth", getAuth(), "body", message.body());
     doSend(frame);
   }
 
@@ -85,7 +85,7 @@ public class BearMessagingTemplate implements BearTemplate {
     final Map<String, Object> frame =
         Map.of(
             "operation",
-            "publish",
+            "PUBLISH",
             "exchange",
             exchange,
             "routingKey",
@@ -120,7 +120,7 @@ public class BearMessagingTemplate implements BearTemplate {
 
   public Optional<byte[]> receive(final String queue) throws BearMQException {
     final Map<String, Object> frame =
-        Map.of("operation", "dequeue", "queue", queue, "auth", getAuth());
+        Map.of("operation", "DEQUEUE", "queue", queue, "auth", getAuth());
     return doReceive(frame);
   }
 

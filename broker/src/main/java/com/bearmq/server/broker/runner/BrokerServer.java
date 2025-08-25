@@ -32,6 +32,8 @@ public class BrokerServer implements Closeable {
 
   public void run() {
     try {
+      loadCurrentQueues();
+
       log.warn("Broker server started on port " + serverSocket.getLocalPort());
 
       while (true) {

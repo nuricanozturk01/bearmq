@@ -23,7 +23,7 @@ public class MessageSender {
             .age(+random.nextInt(10, 30))
             .build();
 
-    bearTemplate.convertAndSend("exchangeA", "", student);
+    bearTemplate.convertAndSend("exchangeB", "", student);
     log.warn("Sent message: {}", student);
   }
 }
