@@ -27,10 +27,12 @@ public class BearConfig {
   }
 
   @Bean
-  BearBinding bindingExchangeBtoA(@Qualifier("exchangeA") final BearExchange exchangeA, @Qualifier("exchangeB") final BearExchange exchangeB) {
+  BearBinding bindingExchangeAToB(
+          @Qualifier("exchangeA") final BearExchange exchangeA,
+          @Qualifier("exchangeB") final BearExchange exchangeB) {
     return new BearBinding.Builder()
-            .exchange(exchangeB.name())
-            .destination(exchangeA.name())
+            .exchange(exchangeA.name())
+            .destination(exchangeB.name())
             .destinationType(BearBinding.DestinationType.EXCHANGE)
             .build();
   }

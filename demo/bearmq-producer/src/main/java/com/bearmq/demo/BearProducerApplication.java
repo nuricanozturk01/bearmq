@@ -15,14 +15,15 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class BearProducerApplication implements CommandLineRunner {
   private final MessageSender messageSender;
-  private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+  private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 
   public static void main(String[] args) {
     SpringApplication.run(BearProducerApplication.class, args);
   }
 
   @Override
-  public void run(String... args) throws Exception {
-    executor.scheduleAtFixedRate(messageSender::send, 0, 150, TimeUnit.MILLISECONDS);
+  public void run(String... args) {
+    executor.scheduleAtFixedRate(messageSender::sendExchangeA, 0, 150, TimeUnit.MILLISECONDS);
+    executor.scheduleAtFixedRate(messageSender::sendExchangeB, 0, 150, TimeUnit.MILLISECONDS);
   }
 }

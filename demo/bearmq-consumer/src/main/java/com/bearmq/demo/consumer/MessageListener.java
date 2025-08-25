@@ -5,8 +5,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MessageListener {
-  @BearListener(queues = "queueX")
-  public void listenQueueX(final Student test) {
-    System.out.println("MessageListener-X " + test);
+  @BearListener(queues = "queueZ")
+  public void listenQueueZ(final Student test) {
+    System.out.println("MessageListener-Z (A): " + test);
+  }
+
+  @BearListener(queues = "queueT")
+  public void listenQueueT(final Student test) {
+    System.out.println("MessageListener-T (A): " + test);
   }
 }

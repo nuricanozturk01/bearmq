@@ -14,7 +14,6 @@ import com.bearmq.shared.queue.QueueService;
 import com.bearmq.shared.vhost.VirtualHost;
 import com.bearmq.shared.vhost.VirtualHostService;
 import jakarta.annotation.PreDestroy;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -31,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.queue.ChronicleQueue;
@@ -76,7 +74,7 @@ public class BrokerServerFacade {
   }
 
   public void prepareAndUpQueues(
-    final VirtualHost vhost, final List<Queue> queues, final List<Binding> bindings) {
+      final VirtualHost vhost, final List<Queue> queues, final List<Binding> bindings) {
     final String vhostId = vhost.getId();
 
     prepareQueues(vhost.getId(), queues);
@@ -178,9 +176,10 @@ public class BrokerServerFacade {
     // NOTE: Tailers are NOT thread-safe, sharing a Tailer between threads will lead to errors and
     // unpredictable behaviour.
     final ExcerptTailer tailer =
-      consumerTailers.computeIfAbsent(key, k -> chronicleQueue.createTailer().toStart());
+        consumerTailers.computeIfAbsent(key, k -> chronicleQueue.createTailer().toStart());
 
-    final Future<Optional<byte[]>> future = virtualThreadPool.submit(() -> readInQueue(queueLock, tailer));
+    final Future<Optional<byte[]>> future =
+        virtualThreadPool.submit(() -> readInQueue(queueLock, tailer));
 
     try {
       return future.get(THREAD_WAIT_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -198,12 +197,12 @@ public class BrokerServerFacade {
       final AtomicReference<byte[]> responseBody = new AtomicReference<>();
 
       final boolean ok =
-        tailer.readBytes(
-          in -> {
-            final byte[] buf = new byte[(int) in.readRemaining()];
-            in.read(buf);
-            responseBody.set(buf);
-          });
+          tailer.readBytes(
+              in -> {
+                final byte[] buf = new byte[(int) in.readRemaining()];
+                in.read(buf);
+                responseBody.set(buf);
+              });
 
       return ok && responseBody.get() != null ? Optional.of(responseBody.get()) : Optional.empty();
     } finally {
@@ -248,13 +247,14 @@ public class BrokerServerFacade {
     }
   }
 
-  private void bindExchangeToExchange(final String vhostId, final String destExchangeName, final String srcExchangeKey) {
+  private void bindExchangeToExchange(
+      final String vhostId, final String destExchangeName, final String srcExchangeKey) {
     final String destinationExchangeKey = exchangeKey(vhostId, destExchangeName);
 
     if (!isCreateCycle(srcExchangeKey, destinationExchangeKey)) {
       exchangeToExchanges
-        .computeIfAbsent(srcExchangeKey, k -> newKeySet())
-        .add(destinationExchangeKey);
+          .computeIfAbsent(srcExchangeKey, k -> newKeySet())
+          .add(destinationExchangeKey);
     }
   }
 
@@ -313,7 +313,7 @@ public class BrokerServerFacade {
 
   private Path resolveQueuePath(final Queue q) {
     return Path.of(
-      storageDir + File.separator + q.getVhost().getId() + File.separator + q.getName());
+        storageDir + File.separator + q.getVhost().getId() + File.separator + q.getName());
   }
 
   private String queueKey(final String vhostId, final String queueName) {
@@ -327,14 +327,14 @@ public class BrokerServerFacade {
   @PreDestroy
   public void shutdown() {
     queueCache
-      .values()
-      .forEach(
-        cq -> {
-          try {
-            cq.close();
-          } catch (Throwable ignore) {
-          }
-        });
+        .values()
+        .forEach(
+            cq -> {
+              try {
+                cq.close();
+              } catch (Throwable ignore) {
+              }
+            });
     consumerTailers.clear();
     routes.clear();
     exchangeToExchanges.clear();

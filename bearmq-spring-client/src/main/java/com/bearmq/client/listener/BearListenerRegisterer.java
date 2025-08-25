@@ -11,36 +11,36 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BearListenerRegisterer implements SmartInitializingSingleton {
-  private final ApplicationContext applicationContext;
-  private final BearerListenerContainer bearerListenerContainer;
+  private final ApplicationContext context;
+  private final BearerListenerContainer bearerListener;
 
   public BearListenerRegisterer(
       final ApplicationContext context, final BearerListenerContainer container) {
-    this.applicationContext = context;
-    this.bearerListenerContainer = container;
+    this.context = context;
+    this.bearerListener = container;
   }
 
   @Override
   public void afterSingletonsInstantiated() {
     final Map<String, List<Handler>> byQueue = new HashMap<>();
 
-    for (final String name : applicationContext.getBeanDefinitionNames()) {
-      final Object bean = applicationContext.getBean(name);
+    for (final String name : context.getBeanDefinitionNames()) {
+      final Object bean = context.getBean(name);
 
-      for (Method m : bean.getClass().getMethods()) {
-        final BearListener bearAnnotation = m.getAnnotation(BearListener.class);
+      for (final Method method : bean.getClass().getMethods()) {
+        final BearListener bearAnnotation = method.getAnnotation(BearListener.class);
 
-        if (bearAnnotation == null || m.getParameterCount() > 1) {
+        if (bearAnnotation == null || method.getParameterCount() > 1) {
           continue;
         }
 
-        for (final String q : bearAnnotation.queues()) {
-          byQueue.computeIfAbsent(q, k -> new ArrayList<>()).add(new Handler(bean, m));
+        for (final String queueName : bearAnnotation.queues()) {
+          byQueue.computeIfAbsent(queueName, k -> new ArrayList<>()).add(new Handler(bean, method));
         }
       }
     }
 
-    bearerListenerContainer.register(byQueue);
-    bearerListenerContainer.start();
+    bearerListener.register(byQueue);
+    bearerListener.start();
   }
 }

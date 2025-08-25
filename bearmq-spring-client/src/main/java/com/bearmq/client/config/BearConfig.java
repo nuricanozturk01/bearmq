@@ -7,6 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(CONFIG_BASE)
 public class BearConfig {
   private static final int REST_PORT = 3333;
+  private static final int DEFAULT_INITIAL_DELAY = 500;
+  private static final int DEFAULT_POLLING_DELAY = 250;
 
   private String username;
   private String password;
@@ -14,7 +16,24 @@ public class BearConfig {
   private int port;
   private String virtualHost;
   private String apiKey;
-  private BearRetryConfig retry;
+  private int initialDelayMs = DEFAULT_INITIAL_DELAY;
+  private int periodMs = DEFAULT_POLLING_DELAY;
+
+  public int getInitialDelayMs() {
+    return initialDelayMs;
+  }
+
+  public void setInitialDelayMs(final int initialDelayMs) {
+    this.initialDelayMs = initialDelayMs;
+  }
+
+  public int getPeriodMs() {
+    return periodMs;
+  }
+
+  public void setPeriodMs(final int periodMs) {
+    this.periodMs = periodMs;
+  }
 
   public String getApiKey() {
     return apiKey;
@@ -62,14 +81,6 @@ public class BearConfig {
 
   public void setVirtualHost(final String virtualHost) {
     this.virtualHost = virtualHost;
-  }
-
-  public BearRetryConfig getRetry() {
-    return retry;
-  }
-
-  public void setRetry(final BearRetryConfig retry) {
-    this.retry = retry;
   }
 
   public String getUrl() {

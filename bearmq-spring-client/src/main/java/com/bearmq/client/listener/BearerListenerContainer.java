@@ -3,9 +3,10 @@ package com.bearmq.client.listener;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.bearmq.client.BearMessagingTemplate;
+import com.bearmq.client.config.BearConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Closeable;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -24,21 +25,23 @@ public class BearerListenerContainer implements Closeable {
   public static final byte HORIZONTAL_TAB = 0x09;
   public static final byte LINE_FEED = 0x0A;
   public static final byte CARRIAGE_RETURN = 0x0D;
-  private static final int DELAY_S = 0;
-  private static final int PERIOD = 500;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BearerListenerContainer.class);
-  private static final int SCHEDULED_THREAD_POOL_SIZE = 4;
+  private static final int SCHEDULED_THREAD_POOL_SIZE = 5;
 
   private final ObjectMapper objectMapper;
+  private final BearConfig config;
   private final BearMessagingTemplate template;
   private final ScheduledExecutorService executor;
   private final Map<String, List<Handler>> handlersByQueue;
 
   public BearerListenerContainer(
-      final ObjectMapper objectMapper, final BearMessagingTemplate template) {
+      final ObjectMapper objectMapper,
+      final BearMessagingTemplate template,
+      final BearConfig config) {
     this.objectMapper = objectMapper;
     this.template = template;
+    this.config = config;
     this.handlersByQueue = new ConcurrentHashMap<>();
     this.executor = Executors.newScheduledThreadPool(SCHEDULED_THREAD_POOL_SIZE);
   }
@@ -52,7 +55,10 @@ public class BearerListenerContainer implements Closeable {
       final String key = entry.getKey();
       final List<Handler> handlers = entry.getValue();
 
-      executor.scheduleWithFixedDelay(() -> run(key, handlers), DELAY_S, PERIOD, MILLISECONDS);
+      final int initDelay = config.getInitialDelayMs();
+      final int period = config.getPeriodMs();
+
+      executor.scheduleWithFixedDelay(() -> run(key, handlers), initDelay, period, MILLISECONDS);
     }
   }
 
@@ -63,42 +69,62 @@ public class BearerListenerContainer implements Closeable {
         return;
       }
 
-      final byte[] body = bytesOpt.get();
+      final byte[] messageBody = bytesOpt.get();
 
-      for (final var handler : handlers) {
+      for (final Handler handler : handlers) {
         final Method method = handler.method();
+
+        // No param. no need mapping. Actually no need listening. Only consume messages
         if (method.getParameterCount() == 0) {
           method.invoke(handler.bean());
           continue;
         }
 
-        final Class<?> parameterType = method.getParameterTypes()[0];
-
-        try {
-          final Object arg;
-          if (parameterType == byte[].class) {
-            arg = body;
-          } else if (parameterType == String.class
-              || parameterType == CharSequence.class
-              || parameterType == Object.class) {
-            arg = new String(body, StandardCharsets.UTF_8);
-          } else {
-            if (!looksLikeJson(body)) {
-              continue;
-            }
-            arg = objectMapper.readValue(body, objectMapper.constructType(parameterType));
-          }
-
-          method.invoke(handler.bean(), arg);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException ignored) {
-
-        } catch (final Exception ex) {
-          LOGGER.warn("Listener invoke failed for {}: {}", queue, ex.toString());
-        }
+        // The first parameter must be the message object.
+        final Class<?> paramType = method.getParameterTypes()[0];
+        mapAndInvoke(messageBody, paramType, method, handler);
       }
     } catch (final Exception e) {
       LOGGER.warn("Listener invoke failed for {}: {}", queue, e.toString());
     }
+  }
+
+  private void mapAndInvoke(
+      final byte[] body, final Class<?> paramType, final Method method, final Handler handler)
+      throws InvocationTargetException, IllegalAccessException {
+    if (body == null) {
+      return;
+    }
+
+    if (paramType.isPrimitive()) {
+      throw new IllegalArgumentException("Primitive param unsupported: " + paramType);
+    }
+
+    final Object arg;
+    if (paramType == byte[].class) {
+      arg = body;
+    } else if (isStringable(paramType)) {
+      arg = new String(body, StandardCharsets.UTF_8);
+    } else {
+      if (!looksLikeJson(body)) {
+        return;
+      }
+      try {
+        arg = objectMapper.readValue(body, objectMapper.constructType(paramType));
+      } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        LOGGER.debug("JSON parse failed for {}: {}", paramType, e.getMessage());
+        return;
+      } catch (java.io.IOException e) {
+        LOGGER.error("IO Exception for {}: {}", paramType, e.getMessage());
+        throw new RuntimeException(e);
+      }
+    }
+
+    method.invoke(handler.bean(), arg);
+  }
+
+  private boolean isStringable(final Class<?> t) {
+    return t == Object.class || CharSequence.class.isAssignableFrom(t);
   }
 
   private boolean looksLikeJson(final byte[] body) {
@@ -124,7 +150,7 @@ public class BearerListenerContainer implements Closeable {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     executor.shutdown();
   }
 }

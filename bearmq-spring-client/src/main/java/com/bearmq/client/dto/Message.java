@@ -1,4 +1,4 @@
-package com.bearmq.client;
+package com.bearmq.client.dto;
 
 import org.springframework.util.Assert;
 
