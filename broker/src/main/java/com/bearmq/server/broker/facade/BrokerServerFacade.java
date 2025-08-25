@@ -1,12 +1,14 @@
 package com.bearmq.server.broker.facade;
 
+import static com.bearmq.shared.binding.DestinationType.EXCHANGE;
+import static java.util.concurrent.ConcurrentHashMap.newKeySet;
+
 import com.bearmq.api.tenant.TenantService;
 import com.bearmq.api.tenant.dto.TenantInfo;
 import com.bearmq.server.broker.dto.Auth;
 import com.bearmq.server.broker.dto.Message;
 import com.bearmq.shared.binding.Binding;
 import com.bearmq.shared.binding.BindingService;
-import com.bearmq.shared.binding.DestinationType;
 import com.bearmq.shared.queue.Queue;
 import com.bearmq.shared.queue.QueueService;
 import com.bearmq.shared.vhost.VirtualHost;
@@ -16,6 +18,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -57,59 +60,103 @@ public class BrokerServerFacade {
   private final Map<String, Set<String>> routes = new ConcurrentHashMap<>();
   private final Map<String, ExcerptTailer> consumerTailers = new ConcurrentHashMap<>();
   private final Map<String, ReentrantLock> queueLocks = new ConcurrentHashMap<>();
+  private final Map<String, Set<String>> exchangeToExchanges = new ConcurrentHashMap<>();
+
+  public void loadQueues() {
+    final List<VirtualHost> vhosts = virtualHostService.findAll();
+
+    for (final VirtualHost vhost : vhosts) {
+      final List<Queue> queues = queueService.findAllByVhostId(vhost.getId());
+      final List<Binding> bindings = bindingService.findAllByVhostId(vhost.getId());
+
+      prepareAndUpQueues(vhost, queues, bindings);
+    }
+  }
 
   public void prepareAndUpQueues(
       final VirtualHost vhost, final List<Queue> queues, final List<Binding> bindings) {
-    for (final Queue queue : queues) {
-      final String key = queueKey(vhost.getId(), queue.getName());
+    final String vhostId = vhost.getId();
 
-      queueCache.computeIfAbsent(key, k -> openChronicle(resolveQueuePath(queue)));
-      queueLocks.computeIfAbsent(key, k -> new ReentrantLock(true));
-    }
+    prepareQueues(vhost.getId(), queues);
 
     for (final Binding binding : bindings) {
-      if (binding.getDestinationType() == DestinationType.EXCHANGE) {
-        // Implement Later
+      final String sourceExchangeName = binding.getSourceExchangeRef().getName();
+      final String sourceExchangeKey = exchangeKey(vhostId, sourceExchangeName);
+
+      if (binding.getDestinationType() == EXCHANGE) {
+        final String destinationExchangeName = binding.getDestinationExchangeRef().getName();
+        bindExchangeToExchange(vhostId, destinationExchangeName, sourceExchangeKey);
         continue;
       }
 
-      final String vhostId = vhost.getId();
-      final String exchangeKey = exchangeKey(vhostId, binding.getSourceExchangeRef().getName());
       final String queueName = binding.getDestinationQueueRef().getName();
-
-      routes.computeIfAbsent(exchangeKey, k -> ConcurrentHashMap.newKeySet()).add(queueName);
+      routes.computeIfAbsent(sourceExchangeKey, k -> newKeySet()).add(queueName);
     }
 
-    log.warn("Queues opened: {}", queueCache.keySet());
-    log.warn("Routes prepared: {}", routes.keySet());
+    log.info("Queues opened: {}", queueCache.keySet());
+    log.info("Routes prepared: {}", routes.keySet());
   }
 
   public Optional<byte[]> identifyOperationAndApply(final Message msg) {
     final VirtualHost vhost = getVhost(msg);
 
     return switch (msg.getOperation()) {
-      case "enqueue" -> {
-        enqueue(vhost, msg);
-        yield Optional.empty();
-      }
-      case "publish" -> {
-        publish(vhost, msg);
-        yield Optional.empty();
-      }
-      case "dequeue" -> dequeue(vhost, msg);
-      default -> throw new IllegalArgumentException("Unknown operation: " + msg.getOperation());
+      case ENQUEUE -> enqueue(vhost, msg);
+      case PUBLISH -> publish(vhost, msg);
+      case DEQUEUE -> dequeue(vhost, msg);
     };
   }
 
-  public void loadQueues() {
-    final var vhosts = virtualHostService.findAll();
+  private Optional<byte[]> enqueue(final VirtualHost vhost, final Message msg) {
+    final String queueName = msg.getQueue();
+    final String key = queueKey(vhost.getId(), queueName);
+    final ChronicleQueue chronicleQueue = queueCache.get(key);
 
-    for (final VirtualHost vhost : vhosts) {
-      final var queues = queueService.findAllByVhostId(vhost.getId());
-      final var bindings = bindingService.findAllByVhostId(vhost.getId());
-
-      prepareAndUpQueues(vhost, queues, bindings);
+    if (chronicleQueue == null) {
+      throw new IllegalArgumentException("Queue not found: " + queueName);
     }
+
+    final byte[] body = msg.getBody();
+    if (body.length == 0) {
+      throw new IllegalArgumentException("Missing body");
+    }
+
+    try (final ExcerptAppender appender = chronicleQueue.createAppender()) {
+      appender.writeBytes(bytes -> bytes.write(body));
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<byte[]> publish(final VirtualHost vhost, final Message msg) {
+    final String exchangeName = msg.getExchange();
+    final String key = exchangeKey(vhost.getId(), exchangeName);
+
+    final Set<String> queueNames = resolveQueuesFor(key);
+
+    if (queueNames.isEmpty()) {
+      return Optional.empty();
+    }
+
+    final byte[] body = msg.getBody();
+    if (body.length == 0) {
+      throw new IllegalArgumentException("Missing body");
+    }
+
+    for (final String queueName : queueNames) {
+      final ChronicleQueue chronicleQueue = queueCache.get(queueKey(vhost.getId(), queueName));
+
+      if (chronicleQueue == null) {
+        log.warn("Queue missing for route: {}", queueName);
+        continue;
+      }
+
+      try (final ExcerptAppender appender = chronicleQueue.createAppender()) {
+        appender.writeBytes(bytes -> bytes.write(body));
+      }
+    }
+
+    return Optional.empty();
   }
 
   private Optional<byte[]> dequeue(final VirtualHost vhost, final Message msg) {
@@ -131,19 +178,20 @@ public class BrokerServerFacade {
     final ExcerptTailer tailer =
         consumerTailers.computeIfAbsent(key, k -> chronicleQueue.createTailer().toStart());
 
-    final Future<Optional<byte[]>> future = virtualThreadPool.submit(() -> lock(queueLock, tailer));
+    final Future<Optional<byte[]>> future =
+        virtualThreadPool.submit(() -> readInQueue(queueLock, tailer));
 
     try {
       return future.get(THREAD_WAIT_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
     } catch (final TimeoutException e) {
-      Thread.currentThread().interrupt();
+      future.cancel(true);
       return Optional.empty();
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private Optional<byte[]> lock(final ReentrantLock lock, final ExcerptTailer tailer) {
+  private Optional<byte[]> readInQueue(final ReentrantLock lock, final ExcerptTailer tailer) {
     lock.lock();
     try {
       final AtomicReference<byte[]> responseBody = new AtomicReference<>();
@@ -162,51 +210,89 @@ public class BrokerServerFacade {
     }
   }
 
-  private void enqueue(final VirtualHost vhost, final Message msg) {
-    final String queueName = msg.getQueue();
-    final String key = queueKey(vhost.getId(), queueName);
-    final ChronicleQueue chronicleQueue = queueCache.get(key);
+  private Set<String> resolveQueuesFor(final String rootExKey) {
+    final Set<String> visitedExchanges = ConcurrentHashMap.newKeySet();
+    final Set<String> resultQueues = ConcurrentHashMap.newKeySet();
+    final ArrayDeque<String> q = new ArrayDeque<>();
+    q.add(rootExKey);
 
-    if (chronicleQueue == null) {
-      throw new IllegalArgumentException("Queue not found: " + queueName);
-    }
+    while (!q.isEmpty()) {
+      final String ex = q.poll();
 
-    final byte[] body = msg.getBody();
-    if (body.length == 0) {
-      throw new IllegalArgumentException("Missing body");
-    }
-
-    try (final ExcerptAppender appender = chronicleQueue.createAppender()) {
-      appender.writeBytes(bytes -> bytes.write(body));
-    }
-  }
-
-  private void publish(final VirtualHost vhost, final Message msg) {
-    final String exchangeName = msg.getExchange();
-    final String key = exchangeKey(vhost.getId(), exchangeName);
-
-    final Set<String> queueNames = routes.getOrDefault(key, Set.of());
-    if (queueNames.isEmpty()) {
-      return;
-    }
-
-    final byte[] body = msg.getBody();
-    if (body.length == 0) {
-      throw new IllegalArgumentException("Missing body");
-    }
-
-    for (final String queueName : queueNames) {
-      final ChronicleQueue chronicleQueue = queueCache.get(queueKey(vhost.getId(), queueName));
-
-      if (chronicleQueue == null) {
-        log.warn("Queue missing for route: {}", queueName);
+      if (!visitedExchanges.add(ex)) {
         continue;
       }
 
-      try (final ExcerptAppender appender = chronicleQueue.createAppender()) {
-        appender.writeBytes(bytes -> bytes.write(body));
+      // ex → queues
+      final Set<String> qs = routes.getOrDefault(ex, Set.of());
+      resultQueues.addAll(qs);
+
+      // ex → exchanges
+      final Set<String> next = exchangeToExchanges.getOrDefault(ex, Set.of());
+      for (final String nx : next) {
+        if (!visitedExchanges.contains(nx)) {
+          q.add(nx);
+        }
       }
     }
+    return resultQueues;
+  }
+
+  private void prepareQueues(final String vhostId, final List<Queue> queues) {
+    for (final Queue queue : queues) {
+      final String key = queueKey(vhostId, queue.getName());
+
+      queueCache.computeIfAbsent(key, k -> openChronicle(resolveQueuePath(queue)));
+      queueLocks.computeIfAbsent(key, k -> new ReentrantLock(true));
+    }
+  }
+
+  private void bindExchangeToExchange(
+      final String vhostId, final String destExchangeName, final String srcExchangeKey) {
+    final String destinationExchangeKey = exchangeKey(vhostId, destExchangeName);
+
+    if (!isCreateCycle(srcExchangeKey, destinationExchangeKey)) {
+      exchangeToExchanges
+          .computeIfAbsent(srcExchangeKey, k -> newKeySet())
+          .add(destinationExchangeKey);
+    }
+  }
+
+  private boolean isCreateCycle(final String srcExchangeKey, final String destExchangeKey) {
+    if (srcExchangeKey.equals(destExchangeKey)) {
+      return true;
+    }
+    final Set<String> visited = ConcurrentHashMap.newKeySet();
+    final ArrayDeque<String> queue = new ArrayDeque<>();
+    queue.add(destExchangeKey);
+
+    // BFS
+    while (!queue.isEmpty()) {
+      final String exchangeKey = queue.poll();
+      if (!visited.add(exchangeKey)) {
+        continue;
+      }
+
+      if (exchangeKey.equals(srcExchangeKey)) {
+        return true;
+      }
+
+      final Set<String> nextExchanges = exchangeToExchanges.getOrDefault(exchangeKey, Set.of());
+      queue.addAll(nextExchanges);
+    }
+
+    return false;
+  }
+
+  private ChronicleQueue openChronicle(final Path dir) {
+    try {
+      Files.createDirectories(dir);
+    } catch (final Exception e) {
+      log.error("Failed to create chronicle queue.", e);
+      throw new IllegalStateException(e);
+    }
+
+    return ChronicleQueue.singleBuilder(dir.toFile()).build();
   }
 
   private VirtualHost getVhost(final Message msg) {
@@ -221,21 +307,8 @@ public class BrokerServerFacade {
     return virtualHostService.findByVhostInfo(tenantInfo.id(), host, username, auth.getPassword());
   }
 
-  private String queueKey(final String vhostId, final String queueName) {
-    return String.format("%s:%s", vhostId, queueName);
-  }
-
-  private String exchangeKey(final String vhostId, final String exchangeName) {
-    return String.format("%s:%s", vhostId, exchangeName);
-  }
-
-  private ChronicleQueue openChronicle(final Path dir) {
-    try {
-      Files.createDirectories(dir);
-    } catch (final Exception e) {
-      throw new IllegalStateException(e);
-    }
-    return ChronicleQueue.singleBuilder(dir.toFile()).build();
+  private String decodeBase64(final String val) {
+    return new String(Base64.getDecoder().decode(val), StandardCharsets.UTF_8);
   }
 
   private Path resolveQueuePath(final Queue q) {
@@ -243,8 +316,12 @@ public class BrokerServerFacade {
         storageDir + File.separator + q.getVhost().getId() + File.separator + q.getName());
   }
 
-  private String decodeBase64(final String val) {
-    return new String(Base64.getDecoder().decode(val), StandardCharsets.UTF_8);
+  private String queueKey(final String vhostId, final String queueName) {
+    return String.format("%s:%s", vhostId, queueName);
+  }
+
+  private String exchangeKey(final String vhostId, final String exchangeName) {
+    return String.format("%s:%s", vhostId, exchangeName);
   }
 
   @PreDestroy
@@ -260,6 +337,7 @@ public class BrokerServerFacade {
             });
     consumerTailers.clear();
     routes.clear();
+    exchangeToExchanges.clear();
     queueCache.clear();
     virtualThreadPool.shutdown();
   }

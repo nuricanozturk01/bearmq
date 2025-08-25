@@ -9,22 +9,30 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BearConfig {
-  @Value("${app.queue}")
-  private String queueName;
-
-  @Value("${app.exchange}")
-  private String exchangeName;
-
   @Bean
-  BearQueue queueY() {
-    return new BearQueue.Builder().name(queueName).durable(true).build();
+  BearQueue queueX() {
+    return new BearQueue.Builder().name("queueX").durable(true).build();
   }
 
   @Bean
-  BearBinding bindB(final BearQueue queueY) {
+  BearQueue queueY() {
+    return new BearQueue.Builder().name("queueY").durable(true).build();
+  }
+
+  @Bean
+  BearBinding bindExchangeBQueueX() {
     return new BearBinding.Builder()
-            .exchange(exchangeName)
-            .destination(queueY.name())
+            .exchange("exchangeB")
+            .destination("queueX")
+            .destinationType(BearBinding.DestinationType.QUEUE)
+            .build();
+  }
+
+  @Bean
+  BearBinding bindExchangeBQueueY() {
+    return new BearBinding.Builder()
+            .exchange("exchangeB")
+            .destination("queueY")
             .destinationType(BearBinding.DestinationType.QUEUE)
             .build();
   }

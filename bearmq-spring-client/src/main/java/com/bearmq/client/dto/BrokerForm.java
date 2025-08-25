@@ -1,4 +1,4 @@
-package com.bearmq.client;
+package com.bearmq.client.dto;
 
 import java.util.List;
 import java.util.Map;

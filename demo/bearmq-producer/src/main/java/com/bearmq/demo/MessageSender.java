@@ -16,14 +16,26 @@ public class MessageSender {
   private final Random random = new Random();
 
   @Async
-  public void send() {
+  public void sendExchangeA() {
     final var student = Student.builder()
-            .address("Address-" + random.nextInt(10, 10000))
-            .name("Name" + random.nextInt(10, 10000))
-            .age(+random.nextInt(10, 30))
+            .address("from-A: Address-" + random.nextInt(10, 10000))
+            .name("from-A: Name" + random.nextInt(10, 10000))
+            .age(random.nextInt(10, 30))
             .build();
 
     bearTemplate.convertAndSend("exchangeA", "", student);
-    log.warn("Sent message: {}", student);
+    log.warn("Sent message to ExchangeA: {}", student);
+  }
+
+  @Async
+  public void sendExchangeB() {
+    final var student = Student.builder()
+            .address("from-B: Address-" + random.nextInt(10, 10000))
+            .name("from-B: Name" + random.nextInt(10, 10000))
+            .age(random.nextInt(10, 30))
+            .build();
+
+    bearTemplate.convertAndSend("exchangeB", "", student);
+    log.warn("Sent message to ExchangeB: {}", student);
   }
 }

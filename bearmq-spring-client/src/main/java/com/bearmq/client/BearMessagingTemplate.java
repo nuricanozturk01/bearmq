@@ -1,6 +1,7 @@
 package com.bearmq.client;
 
 import com.bearmq.client.config.BearConfig;
+import com.bearmq.client.dto.Message;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -34,48 +35,11 @@ public class BearMessagingTemplate implements BearTemplate {
     this.bearConfig = bearConfig;
   }
 
-  private void sendBytes(final DataOutputStream dos, final byte[] bytes) throws IOException {
-    dos.writeInt(bytes.length);
-
-    int offset = 0, chunk = 0;
-    while (offset < bytes.length) {
-      final int chunkSize = Math.min(DEFAULT_CHUNK_SIZE, bytes.length - offset);
-      dos.writeInt(++chunk);
-      dos.write(bytes, offset, chunkSize);
-      offset += chunkSize;
-    }
-    dos.flush();
-  }
-
-  private Optional<byte[]> readChunkedResponse(final DataInputStream dis) throws IOException {
-    final int totalLen = dis.readInt();
-
-    if (totalLen <= 0) {
-      return Optional.empty();
-    }
-
-    final byte[] buf = new byte[totalLen];
-
-    int off = 0;
-    while (off < totalLen) {
-      final int chunkIdx = dis.readInt();
-      final int chunkLen = Math.min(DEFAULT_CHUNK_SIZE, totalLen - off);
-      dis.readFully(buf, off, chunkLen);
-      off += chunkLen;
-    }
-    return Optional.of(buf);
-  }
-
-  @Recover
-  public void recover(final IOException exception) {
-    LOGGER.debug(exception.getMessage(), exception);
-  }
-
   @Override
   public void send(final String routingKey, final Message message) throws BearMQException {
     final Map<String, Object> frame =
         Map.of(
-            "operation", "enqueue", "queue", routingKey, "auth", getAuth(), "body", message.body());
+            "operation", "ENQUEUE", "queue", routingKey, "auth", getAuth(), "body", message.body());
     doSend(frame);
   }
 
@@ -85,7 +49,7 @@ public class BearMessagingTemplate implements BearTemplate {
     final Map<String, Object> frame =
         Map.of(
             "operation",
-            "publish",
+            "PUBLISH",
             "exchange",
             exchange,
             "routingKey",
@@ -118,10 +82,32 @@ public class BearMessagingTemplate implements BearTemplate {
     }
   }
 
+  @Override
   public Optional<byte[]> receive(final String queue) throws BearMQException {
     final Map<String, Object> frame =
-        Map.of("operation", "dequeue", "queue", queue, "auth", getAuth());
+        Map.of("operation", "DEQUEUE", "queue", queue, "auth", getAuth());
     return doReceive(frame);
+  }
+
+  @Retryable(
+      retryFor = IOException.class,
+      backoff = @Backoff(value = BATCH_BACKOFF_TIMEOUT, multiplier = BATCH_MULTIPLIER),
+      recover = "recover")
+  public void doSend(final Map<String, Object> frame) throws BearMQException {
+    try (final Socket socket = new Socket(bearConfig.getHost(), bearConfig.getPort());
+        final DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+      final byte[] bytes = objectMapper.writeValueAsBytes(frame);
+      sendBytes(dos, bytes);
+    } catch (final IOException e) {
+      throw new BearMQException(
+          "Could not send BearMQ message to " + bearConfig.getHost() + ":" + bearConfig.getPort(),
+          e);
+    }
+  }
+
+  @Recover
+  public void recover(final IOException exception) {
+    LOGGER.debug(exception.getMessage(), exception);
   }
 
   private Optional<byte[]> doReceive(final Map<String, Object> frame) throws BearMQException {
@@ -140,20 +126,37 @@ public class BearMessagingTemplate implements BearTemplate {
     }
   }
 
-  @Retryable(
-      retryFor = IOException.class,
-      backoff = @Backoff(value = BATCH_BACKOFF_TIMEOUT, multiplier = BATCH_MULTIPLIER),
-      recover = "recover")
-  public void doSend(final Map<String, Object> frame) throws BearMQException {
-    try (final Socket socket = new Socket(bearConfig.getHost(), bearConfig.getPort());
-        final DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
-      final byte[] bytes = objectMapper.writeValueAsBytes(frame);
-      sendBytes(dos, bytes);
-    } catch (final IOException e) {
-      throw new BearMQException(
-          "Could not send BearMQ message to " + bearConfig.getHost() + ":" + bearConfig.getPort(),
-          e);
+  private void sendBytes(final DataOutputStream dos, final byte[] bytes) throws IOException {
+    dos.writeInt(bytes.length);
+
+    int offset = 0, chunk = 0;
+    while (offset < bytes.length) {
+      final int chunkSize = Math.min(DEFAULT_CHUNK_SIZE, bytes.length - offset);
+      dos.writeInt(++chunk);
+      dos.write(bytes, offset, chunkSize);
+      offset += chunkSize;
     }
+    dos.flush();
+  }
+
+  private Optional<byte[]> readChunkedResponse(final DataInputStream dis) throws IOException {
+    final int totalLen = dis.readInt();
+
+    if (totalLen <= 0) {
+      return Optional.empty();
+    }
+
+    final byte[] buf = new byte[totalLen];
+
+    int offset = 0;
+    while (offset < totalLen) {
+      final int chunkIdx = dis.readInt();
+      final int chunkLen = Math.min(DEFAULT_CHUNK_SIZE, totalLen - offset);
+      dis.readFully(buf, offset, chunkLen);
+      offset += chunkLen;
+    }
+
+    return Optional.of(buf);
   }
 
   private Map<String, Object> getAuth() {

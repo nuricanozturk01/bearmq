@@ -1,6 +1,7 @@
 package com.bearmq.client;
 
 import com.bearmq.client.config.BearConfig;
+import com.bearmq.client.dto.BrokerForm;
 import com.bearmq.client.model.BearBinding;
 import com.bearmq.client.model.BearExchange;
 import com.bearmq.client.model.BearQueue;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
-public class TopologyRegisterer implements SmartInitializingSingleton {
+public class BrokerRegisterer implements SmartInitializingSingleton {
   private static final String API_KEY_HEADER = "X-API-KEY";
 
   private final List<BearQueue> queues;
@@ -21,7 +22,7 @@ public class TopologyRegisterer implements SmartInitializingSingleton {
   private final BearConfig props;
   private final RestClient rest;
 
-  public TopologyRegisterer(
+  public BrokerRegisterer(
       final List<BearQueue> queues,
       final List<BearExchange> exchanges,
       final List<BearBinding> bindings,

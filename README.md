@@ -220,14 +220,6 @@ curl --location --request POST 'http://localhost:3333/api/broker/vhost' \
     port: 6667
     virtual-host: nuricanozturk-yaiumxoup
     api-key: dmafvEHBVmmesVBudwtzZSbgCIBthBoRMyrARcRvaGFdOyssVqga
-    listener:
-      simple:
-        retry:
-          enabled: true
-          initial-interval: 3s
-          max-attempts: 6
-          max-interval: 10s
-          multiplier: 2
   ```
 - your Main class should have @EnableBear** annotation
 - You can create Queue and exchange and bind these.
@@ -308,6 +300,12 @@ public class MessageListener {
   }
 }
 ```
+
+---
+
+## Demo Architecture
+
+<img src="./media/demo.png" alt="demo architecture">
 
 ---
 

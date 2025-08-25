@@ -1,8 +1,9 @@
 server:
   port: 5555
 app:
-  exchange: exchangeA
+  exchange: exchangeB
   queue: queueY
+  queue2: queueZ
 
 bearmq:
   username: gkxockzmeyjhuoodczbyriogw
@@ -12,10 +13,5 @@ bearmq:
   virtual-host: nuricanozturk-jsquewyboyhlfoobdiqltqber
   api-key: bearmqt-vRvkJYiEtgYWHYxwZdzAcRFmxNTrpgwRpNRniExYcaof
   listener:
-    simple:
-      retry:
-        enabled: true
-        initial-interval: 3s
-        max-attempts: 6
-        max-interval: 10s
-        multiplier: 2
+    initial-delay-ms: 200
+    period-ms: 350

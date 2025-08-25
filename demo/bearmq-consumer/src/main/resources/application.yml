@@ -2,7 +2,9 @@ server:
   port: 2222
 app:
   exchange: exchangeA
-  queue: queueX
+  queue: queueZ
+  queuet: queueT
+
 
 bearmq:
   username: gkxockzmeyjhuoodczbyriogw
@@ -11,11 +13,3 @@ bearmq:
   port: 6667
   virtual-host: nuricanozturk-jsquewyboyhlfoobdiqltqber
   api-key: bearmqt-vRvkJYiEtgYWHYxwZdzAcRFmxNTrpgwRpNRniExYcaof
-  listener:
-    simple:
-      retry:
-        enabled: true
-        initial-interval: 3s
-        max-attempts: 6
-        max-interval: 10s
-        multiplier: 2

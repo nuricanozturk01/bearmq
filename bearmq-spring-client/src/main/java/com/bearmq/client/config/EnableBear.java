@@ -13,9 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Retention(RetentionPolicy.RUNTIME)
 @Configuration
 @ComponentScan(Names.BEAN_NAME)
-@EnableConfigurationProperties({
-  BearConfig.class,
-  BearRetryConfig.class,
-})
+@EnableConfigurationProperties(BearConfig.class)
 @SuppressWarnings("unused")
 public @interface EnableBear {}
