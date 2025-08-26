@@ -183,14 +183,13 @@ curl --location 'http://localhost:3333/api/auth/register' \
     "full_name": "nuri",
     "username": "nuricanozturk",
     "email": "canozzturk309@gmail.com",
-    "password": "Test123",
-    "api_key": "bearmqt-........"
+    "password": "Test123"
 }'
 ```
 
 - Then you should create vhost
 
-**Note: You should see the api-key from DB and you can take invalid token (not implemented yet)**
+**Note: you can take invalid token (not implemented yet)**
 
 ```bash
 curl --location --request POST 'http://localhost:3333/api/broker/vhost' \
