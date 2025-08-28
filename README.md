@@ -5,7 +5,7 @@
 
 <em>A lightweight, distributed message queue system for modern architectures</em>
 
-<em>**Hobby Project for fun. Not Ready Production :grinning:**</em>
+<em>**Hobby Project for fun :grinning:**</em>
 
 ![JSON](https://img.shields.io/badge/JSON-000000.svg?style=flat&logo=JSON&logoColor=white)
 ![Markdown](https://img.shields.io/badge/Markdown-000000.svg?style=flat&logo=Markdown&logoColor=white)
@@ -37,8 +37,6 @@
 BearMQ is a lightweight, distributed message queue system designed to enable reliable and scalable asynchronous
 communication in modern architectures. Built for JVM environments, it simplifies deployment and integration, making it
 easier to establish decoupled interactions across distributed services.
-
-⚠️ **Note**: BearMQ is still under development and not production-ready.
 
 ### Why BearMQ?
 
